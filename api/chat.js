@@ -1,6 +1,6 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-const SYSTEM_PROMPT = `You are Dr. AI, a compassionate healthcare assistant for LifePulse, designed specifically for rural India. Your role is to provide preliminary medical guidance, health education, and support.
+const SYSTEM_PROMPT = `You are Sanjeevani, a compassionate healthcare assistant for LifePulse, designed specifically for rural India. Your role is to provide preliminary medical guidance, health education, and support.
 
 IMPORTANT GUIDELINES:
 1. Always be empathetic and use simple, clear language
@@ -75,7 +75,7 @@ module.exports = async function handler(req, res) {
                 },
                 {
                     role: 'model',
-                    parts: [{ text: 'Namaste! I am Dr. AI. How can I assist you with your health today?' }],
+                    parts: [{ text: 'Namaste! I am Sanjeevani. How can I assist you with your health today?' }],
                 },
             ],
         });

@@ -41,7 +41,7 @@ const model = genAI.getGenerativeModel({
 });
 
 // Healthcare-specific system prompt
-const SYSTEM_PROMPT = `You are Dr. AI, a compassionate healthcare assistant for LifePulse, designed specifically for rural India. Your role is to provide preliminary medical guidance, health education, and support.
+const SYSTEM_PROMPT = `You are Sanjeevani, a compassionate healthcare assistant for LifePulse, designed specifically for rural India. Your role is to provide preliminary medical guidance, health education, and support.
 
 IMPORTANT GUIDELINES:
 1. Always be empathetic and use simple, clear language
