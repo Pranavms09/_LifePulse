@@ -17,7 +17,7 @@ If you haven't already, push your code to a GitHub repository:
     ```bash
     git init
     git add .
-    git commit -m "Initial commit for Vercel deployment"
+    git commit -m "Ready for Vercel deployment"
     git branch -M main
     # Replace proper user/repo URL
     git remote add origin https://github.com/YOUR_USERNAME/lifepulse-ai.git
@@ -29,12 +29,15 @@ If you haven't already, push your code to a GitHub repository:
 2.  Click **"Add New..."** -> **"Project"**.
 3.  Import your `lifepulse-ai` repository.
 4.  In the **"Configure Project"** screen:
-    - **Framework Preset**: Select "Other" (or ensure it detects correctly).
+    - **Framework Preset**: Select **"Other"**.
     - **Root Directory**: Leave as `./`.
-    - **Environment Variables**:
+    - **Build Command**: Leave empty (or override to `echo 'No build step'`).
+    - **Output Directory**: Leave empty.
+    - **Environment Variables** (CRITICAL):
         - Click to expand.
-        - Add `GEMINI_API_KEY` as the name.
-        - Paste your actual API key as the value.
+        - **Key**: `GEMINI_API_KEY`
+        - **Value**: Paste your actual API key (starts with `AIza...`).
+        - Click **Add**.
 5.  Click **"Deploy"**.
 
 ### 3. Verify
@@ -42,12 +45,21 @@ If you haven't already, push your code to a GitHub repository:
 - Click the domain provided (e.g., `lifepulse-ai.vercel.app`).
 - Test the "AI Assistant" to ensure it replies correctly.
 
-## Testing Locally (Optional)
-To test the serverless functions locally, you need the Vercel CLI:
-1.  Install: `npm i -g vercel`
-2.  Run: `vercel dev`
-3.  Open `http://localhost:3000`
+## file structure for Vercel
+Ensure your project structure looks like this for optimal deployment:
+```
+/
+├── api/
+│   └── chat.js       # Serverless function for AI
+├── public/           # Static assets (images, icons)
+├── index.html        # Main entry point
+├── script.js         # Frontend logic
+├── styles.css        # Styles
+├── vercel.json       # Vercel configuration
+└── package.json      # Dependencies
+```
 
 ## Troubleshooting
-- **AI not replying?**: Check "Logs" in Vercel dashboard for errors. Ensure your API key is correct in Vercel settings.
-- **Redirection issues?**: Fixed in previous updates via relative paths.
+- **AI replies "AI Model not found"?**: This means the API key is missing or invalid in Vercel. Go to **Settings** -> **Environment Variables** on Vercel and check `GEMINI_API_KEY`.
+- **404 on API calls?**: The `vercel.json` file handles routing. Ensure it is present in your repository.
+- **Build fails?**: Make sure you are not trying to run `npm start` as a build command. The project is a static site with serverless functions.

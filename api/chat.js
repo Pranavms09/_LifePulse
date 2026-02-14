@@ -63,7 +63,25 @@ module.exports = async function handler(req, res) {
                 topP: 0.95,
                 topK: 64,
                 maxOutputTokens: 8192,
-            }
+            },
+            safetySettings: [
+                {
+                    category: 'HARM_CATEGORY_HARASSMENT',
+                    threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+                },
+                {
+                    category: 'HARM_CATEGORY_HATE_SPEECH',
+                    threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+                },
+                {
+                    category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+                    threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+                },
+                {
+                    category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+                    threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+                },
+            ],
         });
 
         // Start Chat
@@ -92,6 +110,14 @@ module.exports = async function handler(req, res) {
         // Handle specific API errors
         if (error.message?.includes('404')) {
              return res.status(500).json({ error: 'AI Model not found. The API Key provided does not have access to Generative Language API.' });
+        }
+
+        if (error.message?.includes('API key')) {
+            return res.status(500).json({ error: 'Invalid API Key. Please check your Vercel Environment Variables.' });
+        }
+
+        if (error.message?.includes('quota') || error.message?.includes('429')) {
+            return res.status(429).json({ error: 'Service is busy. Please try again in a moment.' });
         }
 
         return res.status(500).json({ error: 'Failed to process request', details: error.message });
