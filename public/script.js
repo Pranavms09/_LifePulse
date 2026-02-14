@@ -85,11 +85,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check if running in Capacitor
     if (window.Capacitor) {
         const App = window.Capacitor.Plugins.App;
-        
+
         if (App) {
             App.addListener('backButton', ({ canGoBack }) => {
                 const currentHash = window.location.hash.substring(1);
-                
+
                 // If not on home, go back in history (which triggers our popstate listener)
                 if (currentHash && currentHash !== 'home') {
                     window.history.back();
@@ -123,14 +123,14 @@ async function sendMessage() {
     // Clear input and show user message
     input.value = '';
     addMessageToChat('user', message);
-    
+
     // Show typing indicator
     showTypingIndicator();
 
     try {
         // Check if backend is available (optional, but good for UX)
         // For now, we'll try to send the message directly
-        
+
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: {
@@ -145,7 +145,7 @@ async function sendMessage() {
         }
 
         const data = await response.json();
-        
+
         // Remove typing indicator and show AI response
         removeTypingIndicator();
         addMessageToChat('ai', data.reply);
@@ -153,11 +153,11 @@ async function sendMessage() {
 
     } catch (error) {
         console.error('Chat Error:', error);
-        
+
         // Fallback to local hardcoded response if server fails
         console.log('Falling back to local response...');
         removeTypingIndicator();
-        
+
         // Add a small delay for natural feeling if immediate fail
         setTimeout(() => {
             const fallbackResponse = generateAIResponse(message);
@@ -397,43 +397,142 @@ function closeSOS() {
 function initMap() {
     if (map) {
         map.remove();
+        map = null;
     }
 
-    // Default to Delhi coordinates (in real app, use geolocation)
-    map = L.map('map').setView([28.6139, 77.2090], 13);
+    // Default view (center of India as fallback)
+    map = L.map('map').setView([20.5937, 78.9629], 5);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
+    L.tileLayer('https://maps.geoapify.com/v1/tile/carto/{z}/{x}/{y}.png?apiKey=601eac944cc34c71a9566d0db43c475b', {
+        attribution: 'Powered by <a href="https://www.geoapify.com/" target="_blank">Geoapify</a> | <a href="https://openmaptiles.org/" target="_blank">© OpenMapTiles</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Add hospital markers
-    const hospitals = [
-        { name: "AIIMS Hospital", lat: 28.5672, lng: 77.2100, type: "Government" },
-        { name: "Safdarjung Hospital", lat: 28.5733, lng: 77.2000, type: "Government" },
-        { name: "City Hospital", lat: 28.6200, lng: 77.2200, type: "Private" }
-    ];
+    // Get User Location
+    if (navigator.geolocation) {
+        showNotification('Locating you...', 'info');
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
 
+                // Update map view
+                map.setView([lat, lng], 14);
+
+                // Add User Marker
+                const userIcon = L.divIcon({
+                    className: 'user-marker',
+                    html: '<div class="user-marker-icon" style="width: 20px; height: 20px;"></div>',
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                });
+
+                L.marker([lat, lng], { icon: userIcon })
+                    .addTo(map)
+                    .bindPopup('<div class="popup-header">You are Here</div>').openPopup();
+
+                // Fetch nearby hospitals
+                fetchNearbyHospitals(lat, lng);
+            },
+            () => {
+                showNotification('Location access denied. Using default location.', 'warning');
+                // Fallback to Delhi
+                const defaultLat = 28.6139;
+                const defaultLng = 77.2090;
+                map.setView([defaultLat, defaultLng], 13);
+                fetchNearbyHospitals(defaultLat, defaultLng);
+            }
+        );
+    } else {
+        showNotification('Geolocation not supported. Using default location.', 'error');
+        const defaultLat = 28.6139;
+        const defaultLng = 77.2090;
+        map.setView([defaultLat, defaultLng], 13);
+        fetchNearbyHospitals(defaultLat, defaultLng);
+    }
+}
+
+async function fetchNearbyHospitals(lat, lng) {
     const hospitalList = document.getElementById('hospitalList');
-    hospitalList.innerHTML = '';
+    hospitalList.innerHTML = '<div class="text-center p-4"><i class="fas fa-spinner fa-spin text-purple-600 text-2xl"></i><p class="mt-2 text-gray-600">Finding nearby hospitals...</p></div>';
 
-    hospitals.forEach(hospital => {
-        const marker = L.marker([hospital.lat, hospital.lng]).addTo(map);
-        marker.bindPopup(`<b>${hospital.name}</b><br>${hospital.type} Hospital<br>
-            <button onclick="getDirections(${hospital.lat}, ${hospital.lng})" class="text-blue-600 underline">Get Directions</button>`);
+    try {
+        const response = await fetch(`https://api.geoapify.com/v2/places?categories=healthcare.hospital&filter=circle:${lng},${lat},5000&bias=proximity:${lng},${lat}&limit=10&apiKey=601eac944cc34c71a9566d0db43c475b`);
+        const data = await response.json();
 
-        const div = document.createElement('div');
-        div.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg';
-        div.innerHTML = `
-            <div>
-                <div class="font-bold">${hospital.name}</div>
-                <div class="text-sm text-gray-600">${hospital.type} • 2.5 km away</div>
-            </div>
-            <a href="tel:01112345678" class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white hover:bg-green-600">
-                <i class="fas fa-phone"></i>
-            </a>
-        `;
-        hospitalList.appendChild(div);
-    });
+        hospitalList.innerHTML = '';
+
+        if (!data.features || data.features.length === 0) {
+            hospitalList.innerHTML = '<div class="text-center p-4 text-gray-500">No hospitals found nearby.</div>';
+            return;
+        }
+
+        const hospitalIcon = L.divIcon({
+            className: 'hospital-marker',
+            html: '<div class="hospital-marker-icon" style="width: 30px; height: 30px;"><i class="fas fa-hospital"></i></div>',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+
+        data.features.forEach(place => {
+            const props = place.properties;
+            const hospitalLat = props.lat;
+            const hospitalLng = props.lon;
+            const name = props.name || "Hospital";
+            const address = props.address_line2 || props.formatted;
+
+            // Calculate distance
+            const distMeters = map.distance([lat, lng], [hospitalLat, hospitalLng]);
+            const distance = (distMeters / 1000).toFixed(1);
+
+            const phone = props.contact && props.contact.phone ? props.contact.phone : 'Not Available';
+
+            // Add Marker
+            const marker = L.marker([hospitalLat, hospitalLng], { icon: hospitalIcon }).addTo(map);
+
+            const popupContent = `
+                <div class="">
+                    <div class="popup-header">
+                        ${name}
+                    </div>
+                    <div class="popup-body">
+                        <p class="text-sm text-gray-600 mb-2"><i class="fas fa-map-marker-alt mr-1"></i> ${address}</p>
+                        <p class="text-sm text-gray-600 mb-2"><i class="fas fa-phone mr-1"></i> ${phone}</p>
+                        <p class="text-xs font-bold text-blue-600 mb-2">${distance} km away</p>
+                        <button onclick="getDirections(${hospitalLat}, ${hospitalLng})" class="popup-btn">
+                            <i class="fas fa-directions mr-1"></i> Get Directions
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            marker.bindPopup(popupContent);
+
+            // Add to List
+            const div = document.createElement('div');
+            div.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition cursor-pointer border border-gray-200 mb-2';
+            div.onclick = () => {
+                map.setView([hospitalLat, hospitalLng], 16);
+                marker.openPopup();
+            };
+
+            div.innerHTML = `
+                <div class="flex-1">
+                    <div class="font-bold text-gray-800">${name}</div>
+                    <div class="text-xs text-gray-500 mb-1">${address}</div>
+                    <div class="text-sm text-blue-600 font-medium"><i class="fas fa-route mr-1"></i>${distance} km</div>
+                </div>
+                ${phone !== 'Not Available' ? `
+                <a href="tel:${phone}" onclick="event.stopPropagation()" class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white hover:bg-green-600 shadow-md transform hover:scale-105 transition ml-2">
+                    <i class="fas fa-phone"></i>
+                </a>` : ''}
+            `;
+            hospitalList.appendChild(div);
+        });
+
+    } catch (error) {
+        console.error("Error fetching hospitals:", error);
+        hospitalList.innerHTML = '<div class="text-center p-4 text-red-500">Failed to load hospitals.</div>';
+    }
 }
 
 function getDirections(lat, lng) {
@@ -928,6 +1027,85 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+
 function sendImage() {
     showNotification('Image upload feature coming soon!', 'info');
+}
+
+// Data Download
+function downloadHealthData() {
+    showNotification('Generating Health Report...', 'info');
+
+    const profileData = JSON.parse(localStorage.getItem('profileData') || '{}');
+    const medicalData = JSON.parse(localStorage.getItem('medicalData') || '{}');
+    const now = new Date();
+
+    const element = document.createElement('div');
+    element.innerHTML = `
+        <div style="padding: 40px; font-family: 'Helvetica', sans-serif; color: #333; max-width: 800px; margin: 0 auto;">
+            <div style="text-align: center; border-bottom: 2px solid #6b21a8; padding-bottom: 20px; margin-bottom: 30px;">
+                <h1 style="color: #6b21a8; margin: 0; font-size: 28px;">LifePulse Health Report</h1>
+                <p style="color: #666; margin: 10px 0 0;">Generated on ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}</p>
+            </div>
+            
+            <div style="margin-bottom: 30px;">
+                <h2 style="color: #4b5563; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px;">Patient Profile</h2>
+                <table style="width: 100%; margin-top: 10px;">
+                    <tr>
+                        <td style="padding: 5px 0;"><strong>Name:</strong> ${profileData.name || 'Not provided'}</td>
+                        <td style="padding: 5px 0;"><strong>Age/Gender:</strong> ${profileData.age || '--'}/${profileData.gender || '--'}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 5px 0;"><strong>Blood Group:</strong> ${profileData.bloodGroup || '--'}</td>
+                        <td style="padding: 5px 0;"><strong>Phone:</strong> ${profileData.phone || '--'}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div style="margin-bottom: 30px;">
+                <h2 style="color: #4b5563; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px;">Current Vitals</h2>
+                <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                    <div style="text-align: center; background: #f3f4f6; padding: 15px; border-radius: 8px; width: 30%;">
+                        <div style="font-size: 24px; font-weight: bold; color: #dc2626;">${document.getElementById('heartRate') ? document.getElementById('heartRate').textContent : '--'}</div>
+                        <div style="font-size: 12px; color: #666;">Heart Rate (bpm)</div>
+                    </div>
+                    <div style="text-align: center; background: #f3f4f6; padding: 15px; border-radius: 8px; width: 30%;">
+                        <div style="font-size: 24px; font-weight: bold; color: #2563eb;">120/80</div>
+                        <div style="font-size: 12px; color: #666;">Blood Pressure</div>
+                    </div>
+                    <div style="text-align: center; background: #f3f4f6; padding: 15px; border-radius: 8px; width: 30%;">
+                        <div style="font-size: 24px; font-weight: bold; color: #ea580c;">Active</div>
+                        <div style="font-size: 12px; color: #666;">Status</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 30px;">
+                <h2 style="color: #4b5563; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px;">Medical Summary</h2>
+                <p style="margin: 10px 0;"><strong>Medical Conditions:</strong><br> ${medicalData.conditions || 'None recorded'}</p>
+                <p style="margin: 10px 0;"><strong>Allergies:</strong><br> ${medicalData.allergies || 'None recorded'}</p>
+                <p style="margin: 10px 0;"><strong>Current Medications:</strong><br> ${medicalData.medications || 'None recorded'}</p>
+            </div>
+
+            <div style="margin-top: 50px; text-align: center; font-size: 12px; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 20px;">
+                <p>This report is generated by LifePulse AI Healthcare Assistant.</p>
+                <p>Consult a doctor for professional medical advice.</p>
+            </div>
+        </div>
+    `;
+
+    const opt = {
+        margin: 0.5,
+        filename: `LifePulse_Report_${now.toISOString().split('T')[0]}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save().then(() => {
+        showNotification('Report downloaded successfully!', 'success');
+    }).catch(err => {
+        console.error('PDF Generation Error:', err);
+        showNotification('Failed to generate report. Please try again.', 'error');
+    });
 }
