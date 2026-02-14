@@ -22,13 +22,15 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('heartRate').textContent = hr;
     }, 3000);
     
-    // Hide loading screen after everything is loaded
+    // Hide loading screen after 2 seconds
     window.addEventListener('load', function() {
         const loader = document.getElementById('loadingScreen');
-        loader.classList.add('fade-out');
         setTimeout(() => {
-            loader.style.display = 'none';
-        }, 500);
+            loader.classList.add('fade-out');
+            setTimeout(() => {
+                loader.style.display = 'none';
+            }, 500);
+        }, 2000);
     });
 
     // Initialize visibility states (footer, nav buttons)

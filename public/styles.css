@@ -348,8 +348,10 @@ body {
     to { stroke-dashoffset: 0; }
 }
 
-.loading-text {
-    margin-top: 1rem;
+.loading-text .gradient-text {
+    background: none;
+    -webkit-text-fill-color: white;
+    color: white;
 }
 
 #loadingScreen.fade-out {
