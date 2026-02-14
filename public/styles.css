@@ -139,3 +139,10 @@ body {
     width: 100%;
     border-radius: 12px;
 }
+
+/* Language selector dropdown fix */
+#aiLanguageSelect option {
+    background-color: white;
+    color: black;
+}
+
