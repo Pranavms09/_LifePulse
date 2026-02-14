@@ -90,7 +90,7 @@ async function sendMessage() {
         // Check if backend is available (optional, but good for UX)
         // For now, we'll try to send the message directly
         
-        const response = await fetch('http://localhost:3000/api/chat', {
+        const response = await fetch('/api/chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -99,7 +99,8 @@ async function sendMessage() {
         });
 
         if (!response.ok) {
-            throw new Error(`Server error: ${response.status}`);
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error || `Server error: ${response.status}`);
         }
 
         const data = await response.json();
