@@ -51,7 +51,8 @@
                     <button onclick="showSection('dashboard')"
                         class="nav-btn text-gray-700 hover:text-purple-600 font-medium transition">Dashboard</button>
                     <button onclick="showSection('ai-assistant')"
-                        class="nav-btn text-gray-700 hover:text-purple-600 font-medium transition">Sanjeevani AI</button>
+                        class="nav-btn text-gray-700 hover:text-purple-600 font-medium transition">Sanjeevani
+                        AI</button>
                     <button onclick="showSection('emergency')"
                         class="nav-btn text-red-600 hover:text-red-700 font-medium transition"><i
                             class="fas fa-ambulance mr-1"></i>Emergency</button>
@@ -269,7 +270,8 @@
                         </div>
                         <div>
                             <h2 class="font-bold">Dr. AI Health Assistant</h2>
-                            <p class="text-xs text-purple-200"><i class="fas fa-shield-alt mr-1"></i>Secure & Private • Powered by Google Gemini</p>
+                            <p class="text-xs text-purple-200"><i class="fas fa-shield-alt mr-1"></i>Secure & Private •
+                                Powered by Google Gemini</p>
                         </div>
                     </div>
                     <div class="flex gap-2 items-center">
@@ -305,7 +307,8 @@
                             <i class="fas fa-robot text-purple-600"></i>
                         </div>
                         <div class="bg-white rounded-2xl rounded-tl-none p-4 shadow-md max-w-[80%]">
-                            <p class="text-gray-800">Hi I am Sanjeevani Your Personal AI Health Assistant. I can help you with:</p>
+                            <p class="text-gray-800">Hi I am Sanjeevani Your Personal AI Health Assistant. I can help
+                                you with:</p>
                             <ul class="mt-2 space-y-1 text-sm text-gray-600">
                                 <li>• Symptom checking and preliminary diagnosis</li>
                                 <li>• Medication information and reminders</li>
@@ -1382,7 +1385,7 @@
 
             <!-- Actions -->
             <div class="space-y-3 pb-6">
-                <button
+                <button onclick="downloadHealthData()"
                     class="w-full py-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition flex items-center justify-center">
                     <i class="fas fa-download mr-2"></i>
                     Download My Health Data
@@ -1397,7 +1400,7 @@
     </div>
 
     <!-- Voice Chat Modal -->
-    <div id="voiceModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center">
+    <div id="voiceModal" class="fixed inset-0 bg-black/50 hidden z-[3000] flex items-center justify-center">
         <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 text-center">
             <div
                 class="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
