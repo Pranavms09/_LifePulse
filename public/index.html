@@ -38,7 +38,7 @@
     </div>
 
     <!-- Navigation -->
-    <nav class="bg-white shadow-lg sticky top-0 z-[2000]">
+    <nav class="bg-white shadow-lg fixed top-0 left-0 right-0 z-[2000]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center cursor-pointer" onclick="showSection('home')">
@@ -76,7 +76,7 @@
     </nav>
 
     <!-- Mobile Bottom Navigation -->
-    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-[5000] px-6 py-3 flex justify-between items-center pb-[env(safe-area-inset-bottom,16px)]">
+    <div id="mobileBottomNav" class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-[5000] px-6 py-3 flex justify-between items-center pb-[env(safe-area-inset-bottom,16px)]">
         <button onclick="showSection('home')" class="flex flex-col items-center gap-1 text-gray-500 hover:text-purple-600 transition">
             <i class="fas fa-home text-xl"></i>
             <span class="text-[10px] font-medium">Home</span>
@@ -260,7 +260,7 @@
         </section>
 
         <!-- AI ASSISTANT SECTION -->
-        <section id="ai-assistant" class="section hidden h-[calc(100vh-4rem)] flex flex-col">
+        <section id="ai-assistant" class="section hidden h-[calc(100dvh-64px)] flex flex-col">
             <div class="bg-purple-600 text-white p-4 shadow-lg">
                 <div class="max-w-4xl mx-auto flex items-center justify-between">
                     <div class="flex items-center">
@@ -268,9 +268,7 @@
                             <i class="fas fa-robot text-xl"></i>
                         </div>
                         <div>
-                            <h2 class="font-bold">Dr. AI Health Assistant</h2>
-                            <p class="text-xs text-purple-200"><i class="fas fa-shield-alt mr-1"></i>Secure & Private •
-                                Powered by Google Gemini</p>
+                            <h2 class="font-bold">Dr.Sanjeevani (AI)</h2>
                         </div>
                     </div>
                     <div class="flex gap-2 items-center">
@@ -288,10 +286,6 @@
                             title="Voice Mode">
                             <i class="fas fa-microphone"></i>
                         </button>
-                        <button onclick="clearChat()"
-                            class="w-10 h-10 bg-white/20 rounded-full hover:bg-white/30 transition flex items-center justify-center"
-                            title="Clear Chat">
-                            <i class="fas fa-trash"></i>
                         </button>
                     </div>
                 </div>
@@ -360,8 +354,6 @@
                             <i class="fas fa-camera"></i>
                         </button>
                     </div>
-                    <p class="text-xs text-gray-400 mt-2 text-center">AI responses are for informational purposes only.
-                        Consult a doctor for medical emergencies.</p>
                 </div>
             </div>
         </section>
@@ -920,104 +912,225 @@
 
         <!-- FAMILY DASHBOARD SECTION -->
         <section id="family" class="section hidden">
-            <div class="bg-pink-600 text-white py-8">
-                <div class="max-w-7xl mx-auto px-4">
-                    <h1 class="text-3xl font-bold mb-2"><i class="fas fa-users mr-3"></i>Family Dashboard</h1>
-                    <p>Manage your family's health in one place</p>
+            <!-- Premium Header -->
+            <div class="relative overflow-hidden bg-pink-600 px-4 py-12 text-white">
+                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" style="pointer-events: none;"></div>
+                <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-pink-400 blur-3xl opacity-20" style="pointer-events: none;"></div>
+                <div class="relative z-10 max-w-7xl mx-auto">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div>
+                            <h1 class="text-4xl font-extrabold tracking-tight mb-2">Family Health Center</h1>
+                            <p class="text-pink-100 text-lg opacity-90">Monitor and care for your loved ones from a single dashboard.</p>
+                        </div>
+                        <button onclick="openAddMemberModal()" class="bg-white text-pink-600 px-6 py-3 rounded-xl font-bold hover:bg-pink-50 transition shadow-lg flex items-center gap-2 w-max">
+                            <i class="fas fa-plus-circle"></i> Add Family Member
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="max-w-7xl mx-auto px-4 py-8">
-                <div class="grid md:grid-cols-4 gap-6 mb-8">
-                    <div
-                        class="bg-white rounded-2xl shadow-lg p-6 text-center cursor-pointer hover:shadow-xl transition border-2 border-purple-500">
-                        <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <i class="fas fa-user text-3xl text-purple-600"></i>
+            <div class="max-w-7xl mx-auto px-4 -mt-8 pb-12 relative z-20">
+                <!-- Vitals Overview Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div class="glass-panel p-5 rounded-3xl shadow-xl animate-card-entry stagger-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 rounded-2xl bg-blue-100 flex items-center justify-center text-blue-600">
+                                <i class="fas fa-heartbeat"></i>
+                            </div>
+                            <span class="text-sm font-semibold text-gray-500">Average HR</span>
                         </div>
-                        <h3 class="font-bold">You</h3>
-                        <p class="text-sm text-gray-500">Age: 35 • Male</p>
-                        <span
-                            class="inline-block mt-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs">Healthy</span>
+                        <div class="text-2xl font-bold px-1">72 <span class="text-sm text-gray-400 font-normal">bpm</span></div>
                     </div>
-
-                    <div
-                        class="bg-white rounded-2xl shadow-lg p-6 text-center cursor-pointer hover:shadow-xl transition">
-                        <div class="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <i class="fas fa-user text-3xl text-pink-600"></i>
+                    <div class="glass-panel p-5 rounded-3xl shadow-xl animate-card-entry stagger-2">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 rounded-2xl bg-orange-100 flex items-center justify-center text-orange-600">
+                                <i class="fas fa-temperature-high"></i>
+                            </div>
+                            <span class="text-sm font-semibold text-gray-500">Avg Temp</span>
                         </div>
-                        <h3 class="font-bold">Wife</h3>
-                        <p class="text-sm text-gray-500">Age: 32 • Female</p>
-                        <span
-                            class="inline-block mt-2 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs">Pregnant</span>
+                        <div class="text-2xl font-bold px-1">98.4 <span class="text-sm text-gray-400 font-normal">°F</span></div>
                     </div>
-
-                    <div
-                        class="bg-white rounded-2xl shadow-lg p-6 text-center cursor-pointer hover:shadow-xl transition">
-                        <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <i class="fas fa-child text-3xl text-blue-600"></i>
+                    <div class="glass-panel p-5 rounded-3xl shadow-xl animate-card-entry stagger-3">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 rounded-2xl bg-purple-100 flex items-center justify-center text-purple-600">
+                                <i class="fas fa-pills"></i>
+                            </div>
+                            <span class="text-sm font-semibold text-gray-500">Med Adherence</span>
                         </div>
-                        <h3 class="font-bold">Son</h3>
-                        <p class="text-sm text-gray-500">Age: 8 • Male</p>
-                        <span
-                            class="inline-block mt-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs">Healthy</span>
+                        <div class="text-2xl font-bold px-1">94 <span class="text-sm text-gray-400 font-normal">%</span></div>
                     </div>
-
-                    <div
-                        class="bg-white rounded-2xl shadow-lg p-6 text-center cursor-pointer hover:shadow-xl transition border-2 border-dashed border-gray-300 hover:border-purple-500">
-                        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <i class="fas fa-plus text-3xl text-gray-400"></i>
+                    <div class="glass-panel p-5 rounded-3xl shadow-xl animate-card-entry stagger-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 rounded-2xl bg-green-100 flex items-center justify-center text-green-600">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <span class="text-sm font-semibold text-gray-500">Active Tasks</span>
                         </div>
-                        <h3 class="font-bold text-gray-500">Add Member</h3>
+                        <div class="text-2xl font-bold px-1">12 <span class="text-sm text-gray-400 font-normal">done</span></div>
                     </div>
                 </div>
 
-                <!-- Family Health Summary -->
-                <div class="bg-white rounded-2xl shadow-lg p-6">
-                    <h3 class="text-xl font-bold mb-4">Family Health Summary</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-4 py-3 text-left">Member</th>
-                                    <th class="px-4 py-3 text-left">Last Checkup</th>
-                                    <th class="px-4 py-3 text-left">Vaccinations</th>
-                                    <th class="px-4 py-3 text-left">Medications</th>
-                                    <th class="px-4 py-3 text-left">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y">
-                                <tr>
-                                    <td class="px-4 py-3 font-medium">You</td>
-                                    <td class="px-4 py-3">Jan 15, 2026</td>
-                                    <td class="px-4 py-3 text-green-600"><i class="fas fa-check-circle mr-1"></i>Up to
-                                        date</td>
-                                    <td class="px-4 py-3">Metformin, Vitamin D</td>
-                                    <td class="px-4 py-3"><span
-                                            class="bg-green-100 text-green-700 px-2 py-1 rounded text-sm">Good</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="px-4 py-3 font-medium">Wife</td>
-                                    <td class="px-4 py-3">Feb 1, 2026</td>
-                                    <td class="px-4 py-3 text-yellow-600"><i
-                                            class="fas fa-exclamation-circle mr-1"></i>Flu due</td>
-                                    <td class="px-4 py-3">Prenatal vitamins</td>
-                                    <td class="px-4 py-3"><span
-                                            class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-sm">Monitor</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="px-4 py-3 font-medium">Son</td>
-                                    <td class="px-4 py-3">Dec 20, 2025</td>
-                                    <td class="px-4 py-3 text-green-600"><i class="fas fa-check-circle mr-1"></i>Up to
-                                        date</td>
-                                    <td class="px-4 py-3">None</td>
-                                    <td class="px-4 py-3"><span
-                                            class="bg-green-100 text-green-700 px-2 py-1 rounded text-sm">Excellent</span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <div class="grid lg:grid-cols-3 gap-8">
+                    <!-- Member Profiles -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fas fa-user-friends text-pink-500"></i> Family Members
+                        </h3>
+                        
+                        <div id="familyMembersList" class="space-y-6">
+                            <!-- Member Profile Card - Detailed -->
+                            <div class="bg-white rounded-[2.5rem] p-6 shadow-xl hover:shadow-2xl transition-all border border-gray-100 group">
+                            <div class="flex flex-col md:flex-row gap-6">
+                                <div class="relative flex-shrink-0 mx-auto md:mx-0">
+                                    <div class="avatar-ring">
+                                        <div class="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border-4 border-white">
+                                            <i class="fas fa-user text-4xl text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                    <div class="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-green-500 border-4 border-white"></div>
+                                </div>
+                                
+                                <div class="flex-1">
+                                    <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-2 text-center md:text-left">
+                                        <div>
+                                            <h4 class="text-2xl font-black text-gray-800">You (Aditya Mane)</h4>
+                                            <p class="text-gray-500 font-medium">35 Years • O+ Positive</p>
+                                        </div>
+                                        <div class="flex items-center justify-center gap-2">
+                                            <div class="text-right hidden md:block">
+                                                <div class="text-xs font-bold text-gray-400 uppercase tracking-widest leading-none">Health Score</div>
+                                                <div class="text-xl font-black text-green-600 leading-tight">98/100</div>
+                                            </div>
+                                            <div class="health-ring-container">
+                                                <svg class="health-ring-svg w-full h-full" viewBox="0 0 36 36">
+                                                    <circle class="health-ring-circle" stroke="#f3f4f6" cx="18" cy="18" r="16" />
+                                                    <circle class="health-ring-circle" stroke="#10b981" stroke-dasharray="98, 100" cx="18" cy="18" r="16" />
+                                                </svg>
+                                                <div class="absolute inset-0 flex items-center justify-center text-[10px] font-bold">98%</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                        <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100">
+                                            <div class="text-[10px] font-bold text-gray-400 uppercase">Blood Sugar</div>
+                                            <div class="font-bold text-gray-800">110 mg/dL</div>
+                                        </div>
+                                        <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100">
+                                            <div class="text-[10px] font-bold text-gray-400 uppercase">Sleep</div>
+                                            <div class="font-bold text-gray-800">7.2 hrs</div>
+                                        </div>
+                                        <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100">
+                                            <div class="text-[10px] font-bold text-gray-400 uppercase">Steps</div>
+                                            <div class="font-bold text-gray-800">8.4k</div>
+                                        </div>
+                                        <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100">
+                                            <div class="text-[10px] font-bold text-gray-400 uppercase">Next Checkup</div>
+                                            <div class="font-bold text-pink-600">Mar 12</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Wife Profile -->
+                        <div class="bg-white rounded-[2.5rem] p-6 shadow-xl hover:shadow-2xl transition-all border border-gray-100 group">
+                            <div class="flex flex-col md:flex-row gap-6">
+                                <div class="relative flex-shrink-0 mx-auto md:mx-0">
+                                    <div class="avatar-ring" style="background: linear-gradient(45deg, #f472b6, #ec4899)">
+                                        <div class="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border-4 border-white">
+                                            <i class="fas fa-female text-4xl text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                    <div class="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-yellow-500 border-4 border-white"></div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-2 text-center md:text-left">
+                                        <div>
+                                            <h4 class="text-2xl font-black text-gray-800">Wife</h4>
+                                            <p class="text-gray-500 font-medium">32 Years • Pregnant (24 Weeks)</p>
+                                        </div>
+                                        <div class="flex items-center justify-center gap-2">
+                                            <div class="text-right hidden md:block">
+                                                <div class="text-xs font-bold text-gray-400 uppercase tracking-widest leading-none">Health Score</div>
+                                                <div class="text-xl font-black text-yellow-600 leading-tight">85/100</div>
+                                            </div>
+                                            <div class="health-ring-container">
+                                                <svg class="health-ring-svg w-full h-full" viewBox="0 0 36 36">
+                                                    <circle class="health-ring-circle" stroke="#f3f4f6" cx="18" cy="18" r="16" />
+                                                    <circle class="health-ring-circle" stroke="#eab308" stroke-dasharray="85, 100" cx="18" cy="18" r="16" />
+                                                </svg>
+                                                <div class="absolute inset-0 flex items-center justify-center text-[10px] font-bold">85%</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                        <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100">
+                                            <div class="text-[10px] font-bold text-gray-400 uppercase">BP</div>
+                                            <div class="font-bold text-gray-800">118/78</div>
+                                        </div>
+                                        <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100">
+                                            <div class="text-[10px] font-bold text-gray-400 uppercase">Weight</div>
+                                            <div class="font-bold text-gray-800">+8.5kg</div>
+                                        </div>
+                                        <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100 text-yellow-600">
+                                            <div class="text-[10px] font-bold text-gray-400 uppercase italic">Alert</div>
+                                            <div class="font-bold">Anemia Risk</div>
+                                        </div>
+                                        <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100">
+                                            <div class="text-[10px] font-bold text-gray-400 uppercase">Appointment</div>
+                                            <div class="font-bold text-pink-600">Feb 20</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Timeline & Insights -->
+                <div class="space-y-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                                <i class="fas fa-bolt text-yellow-500"></i> Health Activity
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="relative pl-8 border-l-2 border-pink-100 py-2">
+                                    <div class="absolute -left-[9px] top-4 w-4 h-4 rounded-full bg-pink-500 border-4 border-white"></div>
+                                    <div class="text-xs font-bold text-gray-400 uppercase mb-1">2 Hours Ago</div>
+                                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-50">
+                                        <p class="text-sm font-bold text-gray-700">Wife marked "Prenatal Vitamins" as taken.</p>
+                                    </div>
+                                </div>
+                                <div class="relative pl-8 border-l-2 border-pink-100 py-2">
+                                    <div class="absolute -left-[9px] top-4 w-4 h-4 rounded-full bg-blue-500 border-4 border-white"></div>
+                                    <div class="text-xs font-bold text-gray-400 uppercase mb-1">8 Hours Ago</div>
+                                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-50">
+                                        <p class="text-sm font-bold text-gray-700">Son completed "Weekly Checkup" survey.</p>
+                                    </div>
+                                </div>
+                                <div class="relative pl-8 border-l-2 border-pink-100 py-2">
+                                    <div class="absolute -left-[9px] top-4 w-4 h-4 rounded-full bg-purple-500 border-4 border-white"></div>
+                                    <div class="text-xs font-bold text-gray-400 uppercase mb-1">Yesterday</div>
+                                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-50">
+                                        <p class="text-sm font-bold text-gray-700">New lab results uploaded for Aditya Mane.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-[2.5rem] p-6 text-white shadow-2xl relative overflow-hidden">
+                            <div class="absolute -right-10 -bottom-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" style="pointer-events: none;"></div>
+                            <h4 class="text-xl font-bold mb-4 flex items-center gap-2">
+                                <i class="fas fa-lightbulb text-yellow-300"></i> AI Health Insight
+                            </h4>
+                            <p class="text-sm text-purple-100 opacity-90 leading-relaxed mb-6">
+                                Based on your family's recent checkups, we recommend a Vitamin D screening for everyone as current levels are slightly trending lower than average for this season.
+                            </p>
+                            <button class="w-full bg-white text-purple-600 font-bold py-3 rounded-xl hover:bg-purple-50 transition shadow-lg">
+                                Schedule Screening
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1442,6 +1555,65 @@
             </div>
             <button onclick="closeSOS()" class="mt-6 w-full py-3 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel
                 SOS</button>
+        </div>
+    </div>
+
+    <!-- Add Family Member Modal -->
+    <div id="addMemberModal" class="fixed inset-0 bg-black/50 hidden z-[6000] flex items-center justify-center backdrop-blur-sm p-4 overflow-y-auto">
+        <div class="bg-white rounded-[2.5rem] p-8 max-w-lg w-full shadow-2xl animate-card-entry my-auto max-h-[95vh] overflow-y-auto custom-scrollbar">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-black text-gray-800">Add Family Member</h3>
+                <button onclick="closeAddMemberModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="addMemberForm" onsubmit="event.preventDefault(); saveFamilyMember();" class="space-y-4">
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Full Name</label>
+                    <input type="text" id="memberFullNames" required class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-pink-500 focus:outline-none font-medium mt-1" placeholder="e.g. Rahul Mane">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Age</label>
+                        <input type="number" id="memberAge" required class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-pink-500 focus:outline-none font-medium mt-1" placeholder="30">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Gender</label>
+                        <select id="memberGender" class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-pink-500 focus:outline-none font-medium mt-1">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Relation</label>
+                        <input type="text" id="memberRelation" required class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-pink-500 focus:outline-none font-medium mt-1" placeholder="e.g. Mother">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Blood Group</label>
+                        <select id="memberBloodGroup" class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-pink-500 focus:outline-none font-medium mt-1">
+                            <option>A+</option><option>A-</option>
+                            <option>B+</option><option>B-</option>
+                            <option>O+</option><option>O-</option>
+                            <option>AB+</option><option>AB-</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Health Condition (Optional)</label>
+                    <input type="text" id="memberCondition" class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-pink-500 focus:outline-none font-medium mt-1" placeholder="e.g. Hypertension">
+                </div>
+                
+                <button type="submit" class="w-full py-4 bg-gradient-pink text-white rounded-2xl font-bold shadow-lg shadow-pink-200 hover:shadow-pink-300 transition-all mt-4">
+                    Add Member
+                </button>
+            </form>
         </div>
     </div>
 

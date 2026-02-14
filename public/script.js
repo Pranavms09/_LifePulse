@@ -11,6 +11,7 @@ let heartRateInterval = null;
 document.addEventListener('DOMContentLoaded', function () {
     initApp();
     loadProfileData();
+    loadFamilyMembers();
     animateStats();
     initCharts();
     checkConnectivity();
@@ -93,15 +94,25 @@ function showSection(sectionId, updateHistory = true) {
             }
         }
 
-        // Toggle Footer Visibility
-        const footer = document.getElementById('mainFooter');
-        if (footer) {
-            if (sectionId === 'home') {
-                footer.style.display = 'block';
-                footer.classList.remove('hidden');
+        // Toggle Mobile Bottom Nav Visibility
+        const bottomNav = document.getElementById('mobileBottomNav');
+        const mainContainer = document.getElementById('mainContainer');
+        const isMobile = window.innerWidth < 768;
+
+        if (bottomNav) {
+            if (sectionId === 'ai-assistant') {
+                bottomNav.style.display = 'none';
+                document.body.classList.add('no-scroll');
+                if (mainContainer) mainContainer.style.paddingBottom = '0';
             } else {
-                footer.style.display = 'none';
-                footer.classList.add('hidden');
+                if (isMobile) {
+                    bottomNav.style.display = 'flex';
+                    if (mainContainer) mainContainer.style.paddingBottom = '80px';
+                } else {
+                    bottomNav.style.display = 'none';
+                    if (mainContainer) mainContainer.style.paddingBottom = '0';
+                }
+                document.body.classList.remove('no-scroll');
             }
         }
 
@@ -810,7 +821,7 @@ function showNotification(message, type = 'info') {
         info: 'bg-blue-500'
     };
 
-    div.className = `fixed top-20 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-in`;
+    div.className = `fixed top-24 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-[9999] animate-slide-in`;
     div.innerHTML = `
         <div class="flex items-center">
             <i class="fas ${type === 'success' ? 'fa-check' : type === 'error' ? 'fa-times' : 'fa-info-circle'} mr-2"></i>
@@ -1159,4 +1170,110 @@ function downloadHealthData() {
         console.error('PDF Generation Error:', err);
         showNotification('Failed to generate report. Please try again.', 'error');
     });
+}
+
+// Family Member Logic
+function openAddMemberModal() {
+    document.getElementById('addMemberModal').classList.remove('hidden');
+    document.body.classList.add('no-scroll');
+}
+
+function closeAddMemberModal() {
+    document.getElementById('addMemberModal').classList.add('hidden');
+    document.body.classList.remove('no-scroll');
+    document.getElementById('addMemberForm').reset();
+}
+
+function saveFamilyMember() {
+    const memberData = {
+        id: Date.now(),
+        name: document.getElementById('memberFullNames').value,
+        age: document.getElementById('memberAge').value,
+        gender: document.getElementById('memberGender').value,
+        relation: document.getElementById('memberRelation').value,
+        bloodGroup: document.getElementById('memberBloodGroup').value,
+        condition: document.getElementById('memberCondition').value || 'None',
+        healthScore: 75 + Math.floor(Math.random() * 25) // Simulate a health score
+    };
+
+    // Save to localStorage
+    const members = JSON.parse(localStorage.getItem('familyMembers') || '[]');
+    members.push(memberData);
+    localStorage.setItem('familyMembers', JSON.stringify(members));
+
+    // Render in UI
+    renderFamilyMember(memberData);
+    
+    // Cleanup
+    closeAddMemberModal();
+    showNotification(`${memberData.name} added to family!`, 'success');
+}
+
+function renderFamilyMember(member) {
+    const list = document.getElementById('familyMembersList');
+    if (!list) return;
+
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-[2.5rem] p-6 shadow-xl hover:shadow-2xl transition-all border border-gray-100 group animate-card-entry';
+    
+    card.innerHTML = `
+        <div class="flex flex-col md:flex-row gap-6">
+            <div class="relative flex-shrink-0 mx-auto md:mx-0">
+                <div class="avatar-ring" style="background: linear-gradient(45deg, #8b5cf6, #ec4899)">
+                    <div class="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border-4 border-white">
+                        <i class="fas fa-${member.gender === 'Female' ? 'female' : 'user'} text-4xl text-gray-400"></i>
+                    </div>
+                </div>
+                <div class="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-green-500 border-4 border-white"></div>
+            </div>
+            
+            <div class="flex-1">
+                <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-2 text-center md:text-left">
+                    <div>
+                        <h4 class="text-2xl font-black text-gray-800">${member.name} (${member.relation})</h4>
+                        <p class="text-gray-500 font-medium">${member.age} Years • ${member.bloodGroup} Positive</p>
+                    </div>
+                    <div class="flex items-center justify-center gap-2">
+                        <div class="text-right hidden md:block">
+                            <div class="text-xs font-bold text-gray-400 uppercase tracking-widest leading-none">Health Score</div>
+                            <div class="text-xl font-black text-green-600 leading-tight">${member.healthScore}/100</div>
+                        </div>
+                        <div class="health-ring-container">
+                            <svg class="health-ring-svg w-full h-full" viewBox="0 0 36 36">
+                                <circle class="health-ring-circle" stroke="#f3f4f6" cx="18" cy="18" r="16" />
+                                <circle class="health-ring-circle" stroke="#10b981" stroke-dasharray="${member.healthScore}, 100" cx="18" cy="18" r="16" />
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center text-[10px] font-bold">${member.healthScore}%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100">
+                        <div class="text-[10px] font-bold text-gray-400 uppercase">Status</div>
+                        <div class="font-bold text-gray-800">Healthy</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100">
+                        <div class="text-[10px] font-bold text-gray-400 uppercase">Condition</div>
+                        <div class="font-bold text-gray-800 truncate">${member.condition}</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100">
+                        <div class="text-[10px] font-bold text-gray-400 uppercase">Activity</div>
+                        <div class="font-bold text-gray-800">Active</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100">
+                        <div class="text-[10px] font-bold text-gray-400 uppercase">Consult</div>
+                        <div class="font-bold text-pink-600">Available</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    list.appendChild(card);
+}
+
+function loadFamilyMembers() {
+    const members = JSON.parse(localStorage.getItem('familyMembers') || '[]');
+    members.forEach(member => renderFamilyMember(member));
 }
