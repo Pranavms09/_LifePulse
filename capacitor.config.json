@@ -3,7 +3,7 @@
   "appName": "LifePulse",
   "webDir": "dist",
   "server": {
-    "url": "https://life-pulse-one.vercel.app/",
+    "url": "https://life-pulse-seven.vercel.app",
     "cleartext": true
   }
 }

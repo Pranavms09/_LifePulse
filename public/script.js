@@ -6,6 +6,7 @@ let map = null;
 let heartRateInterval = null;
 
 // Initialize
+// Initialize
 document.addEventListener('DOMContentLoaded', function () {
     initApp();
     loadProfileData();
@@ -49,7 +50,8 @@ function checkConnectivity() {
 }
 
 // Navigation
-function showSection(sectionId) {
+// Navigation
+function showSection(sectionId, updateHistory = true) {
     // Hide all sections
     document.querySelectorAll('.section').forEach(section => {
         section.classList.add('hidden');
@@ -63,6 +65,11 @@ function showSection(sectionId) {
         target.classList.add('active');
         window.scrollTo(0, 0);
 
+        // Update URL and History
+        if (updateHistory) {
+            history.pushState({ section: sectionId }, "", "#" + sectionId);
+        }
+
         // Initialize section-specific features
         if (sectionId === 'emergency') {
             setTimeout(initMap, 100);
@@ -72,6 +79,27 @@ function showSection(sectionId) {
         }
     }
 }
+
+// Handle Browser Back/Forward
+window.addEventListener('popstate', (event) => {
+    if (event.state && event.state.section) {
+        showSection(event.state.section, false);
+    } else {
+        // Default to home if no state (e.g., initial load)
+        showSection('home', false);
+    }
+});
+
+// Handle Initial Load
+window.addEventListener('load', () => {
+    const hash = window.location.hash.substring(1); // Remove '#'
+    if (hash) {
+        showSection(hash, false);
+    } else {
+        // Replace current state for home so back button works correctly
+        history.replaceState({ section: 'home' }, "", "#home");
+    }
+});
 
 // AI Chatbot Functions
 async function sendMessage() {
