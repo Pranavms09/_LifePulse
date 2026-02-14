@@ -51,10 +51,11 @@ Ensure your project structure looks like this for optimal deployment:
 /
 ├── api/
 │   └── chat.js       # Serverless function for AI
-├── public/           # Static assets (images, icons)
-├── index.html        # Main entry point
-├── script.js         # Frontend logic
-├── styles.css        # Styles
+├── public/           # Static assets root
+│   ├── index.html    # Main entry point
+│   ├── script.js     # Frontend logic
+│   ├── styles.css    # Styles
+│   └── service-worker.js
 ├── vercel.json       # Vercel configuration
 └── package.json      # Dependencies
 ```
