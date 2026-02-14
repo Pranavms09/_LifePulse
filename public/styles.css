@@ -8,19 +8,20 @@ body {
     padding-bottom: env(safe-area-inset-bottom);
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
-    padding-top: 64px; /* Height of the navigation bar */
+    padding-top: calc(64px + env(safe-area-inset-top, 0px));
     min-height: 100vh;
 }
 
 /* Mobile specific top margin for bezel clearance */
 @media (max-width: 768px) {
     body {
-        padding-top: calc(env(safe-area-inset-top, 20px) + 64px);
+        padding-top: calc(64px + env(safe-area-inset-top, 0px));
     }
     
     /* Ensure navbar stays sticky but has some breathing room if needed */
     nav {
         margin-top: 0;
+        padding-top: env(safe-area-inset-top, 0px);
     }
     
     /* Move main content down slightly to avoid overlap with bottom nav */
