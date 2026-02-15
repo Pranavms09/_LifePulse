@@ -597,14 +597,13 @@ async function fetchNearbyHospitals(lat, lng) {
                     <div class="text-xs text-gray-500 mb-1">${address}</div>
                     <div class="text-sm text-blue-600 font-medium"><i class="fas fa-route mr-1"></i>${distance} km</div>
                 </div>
-                ${
-                  phone !== "Not Available"
-                    ? `
+                ${phone !== "Not Available"
+          ? `
                 <a href="tel:${phone}" onclick="event.stopPropagation()" class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white hover:bg-green-600 shadow-md transform hover:scale-105 transition ml-2">
                     <i class="fas fa-phone"></i>
                 </a>`
-                    : ""
-                }
+          : ""
+        }
             `;
       hospitalList.appendChild(div);
     });
@@ -682,7 +681,7 @@ function checkMedicineReminders() {
       if ("speechSynthesis" in window) {
         const msg = new SpeechSynthesisUtterance(
           "Medicine reminder: Time to take your " +
-            card.querySelector("h4").textContent,
+          card.querySelector("h4").textContent,
         );
         window.speechSynthesis.speak(msg);
       }
@@ -1511,3 +1510,110 @@ function loadFamilyMembers() {
   const members = JSON.parse(localStorage.getItem("familyMembers") || "[]");
   members.forEach((member) => renderFamilyMember(member));
 }
+// Mouse Follower Logic
+document.addEventListener('mousemove', (e) => {
+  const follower = document.getElementById('mouse-follower');
+  if (follower) {
+    follower.style.left = e.clientX + 'px';
+    follower.style.top = e.clientY + 'px';
+  }
+});
+
+// Add hover effect for clickable elements
+document.querySelectorAll('button, a, .cursor-pointer').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    const follower = document.getElementById('mouse-follower');
+    if (follower) follower.classList.add('scale-150', 'bg-purple-500/50');
+  });
+  el.addEventListener('mouseleave', () => {
+    const follower = document.getElementById('mouse-follower');
+    if (follower) follower.classList.remove('scale-150', 'bg-purple-500/50');
+  });
+});
+// 3D Modal & Scroll Logic
+document.addEventListener("DOMContentLoaded", () => {
+  // register scroll trigger
+  if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Animate Features on Scroll
+    gsap.utils.toArray('.feature-card').forEach((card, i) => {
+      gsap.from(card, {
+        scrollTrigger: {
+          trigger: card,
+          start: "top 85%",
+          toggleActions: "play none none reverse"
+        },
+        y: 50,
+        opacity: 0,
+        duration: 0.8,
+        delay: i * 0.1,
+        ease: "power3.out"
+      });
+    });
+
+    // Animate Section Headers
+    gsap.utils.toArray('.section h2').forEach(header => {
+      gsap.from(header, {
+        scrollTrigger: {
+          trigger: header,
+          start: "top 80%",
+        },
+        y: 30,
+        opacity: 0,
+        duration: 1,
+        ease: "power2.out"
+      });
+    });
+  }
+
+  // 3D Tilt Logic for Modal
+  const modal = document.getElementById('getStartedModal');
+  const card = modal.querySelector('.card-3d');
+
+  if (modal && card) {
+    modal.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+
+      const rotateX = ((y - centerY) / centerY) * -10; // Max 10deg rotation
+      const rotateY = ((x - centerX) / centerX) * 10;
+
+      card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    });
+
+    modal.addEventListener('mouseleave', () => {
+      card.style.transform = `rotateX(0deg) rotateY(0deg)`;
+    });
+  }
+});
+
+function openModal() {
+  const modal = document.getElementById('getStartedModal');
+  modal.classList.remove('hidden', 'pointer-events-none');
+  modal.classList.add('flex');
+  // Small delay to allow display:flex to apply before opacity transition
+  setTimeout(() => {
+    modal.classList.remove('opacity-0');
+  }, 10);
+}
+
+function closeModal() {
+  const modal = document.getElementById('getStartedModal');
+  modal.classList.add('opacity-0');
+  setTimeout(() => {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }, 300);
+}
+
+// Hook up the "Get Started" button in Navbar to open modal
+document.querySelectorAll('button').forEach(btn => {
+  if (btn.innerText.includes('Get Started')) {
+    btn.onclick = openModal;
+  }
+});
