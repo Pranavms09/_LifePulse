@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
             loader.classList.add('fade-out');
             setTimeout(() => {
                 loader.style.display = 'none';
+                window.scrollTo(0, 0); // Ensure page starts at top after loading
             }, 500);
         }, 2000);
     });
@@ -96,22 +97,28 @@ function showSection(sectionId, updateHistory = true) {
             }
         }
 
-        // Toggle Mobile Bottom Nav Visibility
+        // Toggle Mobile Bottom Nav and Footer Visibility
         const bottomNav = document.getElementById('mobileBottomNav');
+        const footer = document.querySelector('footer');
         const mainContainer = document.getElementById('mainContainer');
         const isMobile = window.innerWidth < 768;
 
         if (bottomNav) {
             if (sectionId === 'ai-assistant') {
                 bottomNav.style.display = 'none';
+                if (footer) footer.style.display = 'none';
                 document.body.classList.add('no-scroll');
                 if (mainContainer) mainContainer.style.paddingBottom = '0';
             } else {
                 if (isMobile) {
                     bottomNav.style.display = 'flex';
+                    if (footer) {
+                        footer.style.display = (sectionId === 'home') ? 'block' : 'none';
+                    }
                     if (mainContainer) mainContainer.style.paddingBottom = '80px';
                 } else {
                     bottomNav.style.display = 'none';
+                    if (footer) footer.style.display = 'block';
                     if (mainContainer) mainContainer.style.paddingBottom = '0';
                 }
                 document.body.classList.remove('no-scroll');

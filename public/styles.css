@@ -29,6 +29,10 @@ body {
         padding-bottom: 80px;
     }
 
+    footer {
+        display: none;
+    }
+
     /* Fix Leaflet attribution overlap with mobile nav */
     .leaflet-control-attribution {
         margin-bottom: 70px !important;
