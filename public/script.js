@@ -21,9 +21,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const hr = 70 + Math.floor(Math.random() * 10);
         document.getElementById('heartRate').textContent = hr;
     }, 3000);
-    
+
     // Hide loading screen after 2 seconds
-    window.addEventListener('load', function() {
+    window.addEventListener('load', function () {
         const loader = document.getElementById('loadingScreen');
         setTimeout(() => {
             loader.classList.add('fade-out');
@@ -231,7 +231,7 @@ function addMessageToChat(sender, message) {
     const container = document.getElementById('chatContainer');
     const div = document.createElement('div');
     div.className = 'flex items-start space-x-3 chat-message';
-    
+
     // Convert line breaks to HTML
     const formattedMessage = message.replace(/\n/g, '<br>');
 
@@ -1212,7 +1212,7 @@ function saveFamilyMember() {
 
     // Render in UI
     renderFamilyMember(memberData);
-    
+
     // Cleanup
     closeAddMemberModal();
     showNotification(`${memberData.name} added to family!`, 'success');
@@ -1224,7 +1224,7 @@ function renderFamilyMember(member) {
 
     const card = document.createElement('div');
     card.className = 'bg-white rounded-[2.5rem] p-6 shadow-xl hover:shadow-2xl transition-all border border-gray-100 group animate-card-entry';
-    
+
     card.innerHTML = `
         <div class="flex flex-col md:flex-row gap-6">
             <div class="relative flex-shrink-0 mx-auto md:mx-0">
@@ -1278,11 +1278,22 @@ function renderFamilyMember(member) {
             </div>
         </div>
     `;
-    
+
     list.appendChild(card);
 }
 
 function loadFamilyMembers() {
     const members = JSON.parse(localStorage.getItem('familyMembers') || '[]');
     members.forEach(member => renderFamilyMember(member));
+}
+
+async function handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+        const { error } = await _supabase.auth.signOut();
+        if (error) {
+            showNotification('Error logging out: ' + error.message, 'error');
+        } else {
+            window.location.href = 'auth.html';
+        }
+    }
 }
