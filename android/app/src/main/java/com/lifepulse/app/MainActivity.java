@@ -1,14 +1,16 @@
 package com.lifepulse.app;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
+import android.webkit.WebView;
 
 import androidx.core.view.WindowCompat;
 
 import com.getcapacitor.BridgeActivity;
 import com.getcapacitor.JSObject;
-import com.getcapacitor.Plugin;
 
 import java.io.File;
 
@@ -22,9 +24,11 @@ public class MainActivity extends BridgeActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
         Log.d(TAG, "MainActivity.onCreate started.");
         registerPlugin(OfflineAiPlugin.class);
-        super.onCreate(savedInstanceState);
+        registerPlugin(com.capacitorjs.plugins.haptics.HapticsPlugin.class);
 
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
@@ -34,37 +38,43 @@ public class MainActivity extends BridgeActivity {
         networkUtils = new NetworkUtils(this, this::onNetworkStatusChanged);
         networkUtils.registerNetworkCallback();
 
-        // Check for the model and update status, but do not auto-download
-        handleInitialStatus(networkUtils.isOnline());
+        // Directly check for the model on startup
+        handleInitialStatus();
     }
 
-    private void handleInitialStatus(boolean isOnline) {
+    private void handleInitialStatus() {
         File modelFile = new File(new File(getExternalFilesDir(null), "models"), "gemma-2b-it-q4.gguf");
 
         if (modelFile.exists()) {
-            Log.d(TAG, "Model exists. Initializing Gemma.");
+            Log.d(TAG, "Model file exists. Initializing Gemma.");
             initializeGemma(modelFile.getAbsolutePath());
         } else {
-            Log.d(TAG, "Offline model not found.");
+            Log.d(TAG, "Offline model file not found. Please place it manually.");
         }
 
-        onNetworkStatusChanged(isOnline);
+        // Always send an initial status update after a delay
+        new Handler(Looper.getMainLooper()).postDelayed(
+            () -> onNetworkStatusChanged(networkUtils.isOnline()),
+            1500 // Use a slightly longer delay to be safe
+        );
     }
 
     public void initializeGemma(String modelPath) {
-        Log.d(TAG, "initializeGemma called with path: " + modelPath);
         if (isGemmaInitialized) return;
+        Log.d(TAG, "Initializing Gemma with path: " + modelPath);
         new Thread(() -> {
             isGemmaInitialized = gemmaLocalAi.initModel(modelPath);
-            if (isGemmaInitialized) {
-                Log.d(TAG, "Gemma initialized successfully.");
-                showToast("Offline AI Engine Initialized.");
-                // Refresh status to show Gemma is ready
-                onNetworkStatusChanged(networkUtils.isOnline());
-            } else {
-                Log.e(TAG, "Gemma initialization failed.");
-                showToast("Error: Could not initialize Offline AI.");
-            }
+            runOnUiThread(() -> {
+                if (isGemmaInitialized) {
+                    Log.d(TAG, "Gemma initialized successfully.");
+                    showToast("Offline AI Engine Initialized.");
+                    // Send an update to the webview now that Gemma is ready
+                    onNetworkStatusChanged(networkUtils.isOnline());
+                } else {
+                    Log.e(TAG, "Gemma initialization failed.");
+                    showToast("Error: Could not initialize Offline AI.");
+                }
+            });
         }).start();
     }
 
@@ -72,14 +82,21 @@ public class MainActivity extends BridgeActivity {
         runOnUiThread(() -> {
             JSObject ret = new JSObject();
             ret.put("isOnline", isOnline);
-            if (!isOnline && !isGemmaInitialized) {
-                ret.put("status", "🔵 Offline (Model Not Found)");
-            } else if (!isOnline) {
-                ret.put("status", "🔵 Offline (Gemma)");
+            ret.put("isGemmaInitialized", isGemmaInitialized);
+
+            String status;
+            if (isOnline) {
+                status = isGemmaInitialized ? "🟢 Online | Offline Ready" : "🟢 Online | Download Available";
             } else {
-                ret.put("status", "🟢 Online (Gemini)");
+                status = isGemmaInitialized ? "🔵 Offline (Gemma)" : "🔴 Offline (Model Not Found)";
             }
-            bridge.getWebView().evaluateJavascript("window.dispatchEvent(new CustomEvent('networkStatusChange', { detail: " + ret.toString() + " }))", null);
+            ret.put("status", status);
+
+            String eventScript = String.format(
+                "window.dispatchEvent(new CustomEvent('networkStatusChange', { detail: %s }))",
+                ret.toString()
+            );
+            bridge.getWebView().evaluateJavascript(eventScript, null);
         });
     }
 

@@ -1,11 +1,11 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 // Validate API key on startup
 if (!process.env.GEMINI_API_KEY) {
-    console.error('❌ ERROR: GEMINI_API_KEY is not set in .env file');
-    console.error('Please create a .env file and add your Gemini API key');
-    console.error('Get your key from: https://makersuite.google.com/app/apikey');
-    process.exit(1);
+  console.error("❌ ERROR: GEMINI_API_KEY is not set in .env file");
+  console.error("Please create a .env file and add your Gemini API key");
+  console.error("Get your key from: https://makersuite.google.com/app/apikey");
+  process.exit(1);
 }
 
 // Initialize Gemini AI
@@ -13,31 +13,31 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Configure the model
 const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-flash',
-    generationConfig: {
-        temperature: 0.7,
-        topP: 0.95,
-        topK: 40,
-        maxOutputTokens: 1024,
+  model: "gemini-2.5-flash",
+  generationConfig: {
+    temperature: 0.7,
+    topP: 0.95,
+    topK: 40,
+    maxOutputTokens: 1024,
+  },
+  safetySettings: [
+    {
+      category: "HARM_CATEGORY_HARASSMENT",
+      threshold: "BLOCK_MEDIUM_AND_ABOVE",
     },
-    safetySettings: [
-        {
-            category: 'HARM_CATEGORY_HARASSMENT',
-            threshold: 'BLOCK_MEDIUM_AND_ABOVE',
-        },
-        {
-            category: 'HARM_CATEGORY_HATE_SPEECH',
-            threshold: 'BLOCK_MEDIUM_AND_ABOVE',
-        },
-        {
-            category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-            threshold: 'BLOCK_MEDIUM_AND_ABOVE',
-        },
-        {
-            category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-            threshold: 'BLOCK_MEDIUM_AND_ABOVE',
-        },
-    ],
+    {
+      category: "HARM_CATEGORY_HATE_SPEECH",
+      threshold: "BLOCK_MEDIUM_AND_ABOVE",
+    },
+    {
+      category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+      threshold: "BLOCK_MEDIUM_AND_ABOVE",
+    },
+    {
+      category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+      threshold: "BLOCK_MEDIUM_AND_ABOVE",
+    },
+  ],
 });
 
 // Healthcare-specific system prompt
@@ -76,6 +76,6 @@ RESPONSE STRUCTURE:
 Remember: You provide preliminary guidance only. Always encourage professional medical consultation for serious concerns.`;
 
 module.exports = {
-    model,
-    SYSTEM_PROMPT,
+  model,
+  SYSTEM_PROMPT,
 };

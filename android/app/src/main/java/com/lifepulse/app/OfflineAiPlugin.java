@@ -13,7 +13,7 @@ import java.io.File;
 public class OfflineAiPlugin extends Plugin {
 
     private static final String TAG = "OfflineAiPlugin";
-    private static final String MODEL_URL = "https://huggingface.co/google/gemma-2b-it/resolve/main/gemma-2b-it-q4.gguf?download=true";
+    private static final String MODEL_URL = "https://huggingface.co/bartowski/gemma-2b-it-gguf/resolve/main/gemma-2b-it-q4.gguf?download=true";
 
     private GemmaLocalAi gemmaAi = new GemmaLocalAi();
 
@@ -34,9 +34,8 @@ public class OfflineAiPlugin extends Plugin {
         }).start();
     }
 
-    @PluginMethod(returnType = PluginMethod.RETURN_CALLBACK)
+    @PluginMethod // This will default to RETURN_PROMISE, which is what we want for async/await
     public void downloadModel(PluginCall call) {
-        call.setKeepAlive(true);
         ModelDownloader downloader = new ModelDownloader();
         downloader.downloadModel(getContext(), MODEL_URL, new ModelDownloader.DownloadListener() {
             @Override
@@ -50,12 +49,12 @@ public class OfflineAiPlugin extends Plugin {
             public void onComplete(File modelFile) {
                 JSObject ret = new JSObject();
                 ret.put("path", modelFile.getAbsolutePath());
-                call.resolve(ret);
+                call.resolve(ret); // This will now correctly resolve the JavaScript Promise
             }
 
             @Override
             public void onFailure(Exception e) {
-                call.reject("Model download failed: " + e.getMessage());
+                call.reject("Model download failed: " + e.getMessage()); // This will now correctly reject the JavaScript Promise
             }
         });
     }

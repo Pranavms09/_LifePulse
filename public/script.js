@@ -4,6 +4,8 @@ let aiLanguage = "en"; // AI response language
 let chatHistory = [];
 let isOnline = navigator.onLine;
 let map = null;
+let pharmacyMap = null;
+let pharmacyMarkers = [];
 let heartRateInterval = null;
 
 // Initialize
@@ -12,15 +14,8 @@ document.addEventListener("DOMContentLoaded", function () {
   initApp();
   loadProfileData();
   loadFamilyMembers();
-  animateStats();
   initCharts();
   checkConnectivity();
-
-  // Heart rate simulation
-  setInterval(() => {
-    const hr = 70 + Math.floor(Math.random() * 10);
-    document.getElementById("heartRate").textContent = hr;
-  }, 3000);
 
   // Hide loading screen after 2 seconds
   window.addEventListener("load", function () {
@@ -122,6 +117,9 @@ function showSection(sectionId, updateHistory = true) {
     if (sectionId === "emergency") {
       setTimeout(initMap, 100);
     }
+    if (sectionId === "pharmacy-finder") {
+      setTimeout(initPharmacyMap, 100);
+    }
     if (sectionId === "dashboard") {
       updateDashboardCharts();
     }
@@ -162,232 +160,6 @@ window.addEventListener("load", () => {
   }
 });
 
-// AI Chatbot Functions
-async function sendMessage() {
-  const input = document.getElementById("chatInput");
-  const message = input.value.trim();
-  if (!message) return;
-
-  // Clear input and show user message
-  input.value = "";
-  addMessageToChat("user", message);
-
-  // Show typing indicator
-  showTypingIndicator();
-
-  try {
-    // Check if backend is available (optional, but good for UX)
-    // For now, we'll try to send the message directly
-
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ message, language: aiLanguage }),
-    });
-
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.error || `Server error: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    // Remove typing indicator and show AI response
-    removeTypingIndicator();
-    addMessageToChat("ai", data.reply);
-    // speakResponse(data.reply); // Auto-read disabled per user request
-  } catch (error) {
-    console.error("Chat Error:", error);
-
-    // Fallback to local hardcoded response if server fails
-    console.log("Falling back to local response...");
-    removeTypingIndicator();
-
-    // Add a small delay for natural feeling if immediate fail
-    setTimeout(() => {
-      const fallbackResponse = generateAIResponse(message);
-      // Append a small note about offline mode if needed, or just show response
-      const responseWithNote = `${fallbackResponse}<br><br><span class="text-xs text-gray-500">(Offline Mode)</span>`;
-      addMessageToChat("ai", responseWithNote);
-      // speakResponse(fallbackResponse); // Auto-read disabled per user request
-    }, 500);
-  }
-}
-
-function addMessageToChat(sender, message) {
-  const container = document.getElementById("chatContainer");
-  const div = document.createElement("div");
-  div.className = "flex items-start space-x-3 chat-message";
-
-  // Convert line breaks to HTML
-  const formattedMessage = message.replace(/\n/g, "<br>");
-
-  if (sender === "user") {
-    div.innerHTML = `
-            <div class="flex-1 flex justify-end">
-                <div class="bg-purple-600 text-white rounded-2xl rounded-tr-none p-4 shadow-md max-w-[80%]">
-                    ${formattedMessage}
-                </div>
-            </div>
-            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                <i class="fas fa-user text-purple-600"></i>
-            </div>
-        `;
-  } else {
-    div.innerHTML = `
-            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                <i class="fas fa-robot text-purple-600"></i>
-            </div>
-            <div class="bg-white rounded-2xl rounded-tl-none p-4 shadow-md max-w-[80%]">
-                ${formattedMessage}
-            </div>
-        `;
-  }
-
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-}
-
-function showTypingIndicator() {
-  const container = document.getElementById("chatContainer");
-  const div = document.createElement("div");
-  div.id = "typingIndicator";
-  div.className = "flex items-start space-x-3";
-  div.innerHTML = `
-        <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-            <i class="fas fa-robot text-purple-600"></i>
-        </div>
-        <div class="bg-white rounded-2xl rounded-tl-none p-4 shadow-md">
-            <div class="typing-indicator">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
-    `;
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-}
-
-function removeTypingIndicator() {
-  const indicator = document.getElementById("typingIndicator");
-  if (indicator) indicator.remove();
-}
-
-function generateAIResponse(input) {
-  const lower = input.toLowerCase();
-
-  // Emergency detection
-  if (
-    lower.includes("chest pain") ||
-    lower.includes("heart attack") ||
-    lower.includes("can't breathe")
-  ) {
-    return `🚨 <b>This sounds like a medical emergency!</b><br><br>
-        Please call <b>108</b> immediately or press the SOS button.<br><br>
-        While waiting for help:<br>
-        • Sit down and stay calm<br>
-        • Loosen tight clothing<br>
-        • If you have aspirin, chew one (if not allergic)<br>
-        • Do not drive yourself`;
-  }
-
-  // Common symptoms
-  if (lower.includes("fever") || lower.includes("headache")) {
-    return `Based on your symptoms (fever and headache), this could be:<br><br>
-        <b>Common possibilities:</b><br>
-        • Viral fever/flu<br>
-        • Migraine<br>
-        • Dehydration<br>
-        • Typhoid (if prolonged)<br><br>
-        <b>Immediate relief:</b><br>
-        • Drink plenty of fluids (ORS, coconut water)<br>
-        • Take paracetamol 500mg for fever<br>
-        • Rest in a cool, dark room for headache<br>
-        • Cold compress on forehead<br><br>
-        <b>⚠️ See a doctor if:</b> Fever persists >3 days, severe headache with vomiting, or neck stiffness.`;
-  }
-
-  if (lower.includes("stomach") || lower.includes("pain")) {
-    return `For stomach pain, the cause depends on the location:<br><br>
-        <b>Upper abdomen:</b> Could be acidity, gastritis, or ulcer<br>
-        <b>Lower right:</b> Watch for appendicitis<br>
-        <b>General:</b> Food poisoning, gas, or infection<br><br>
-        <b>Home remedies:</b><br>
-        • Ajwain (carom seeds) with warm water<br>
-        • Ginger tea<br>
-        • Light food (khichdi, curd rice)<br>
-        • Avoid spicy/oily food<br><br>
-        <b>⚠️ Go to hospital if:</b> Severe pain, vomiting blood, or no bowel movement with swelling.`;
-  }
-
-  if (lower.includes("diabetes") || lower.includes("sugar")) {
-    return `For diabetes management:<br><br>
-        <b>Diet tips:</b><br>
-        • Eat small, frequent meals<br>
-        • Include bitter gourd (karela), fenugreek (methi)<br>
-        • Use whole grains (bajra, ragi, oats)<br>
-        • Avoid sugar, sweets, and white rice<br><br>
-        <b>Lifestyle:</b><br>
-        • Walk 30 mins daily after meals<br>
-        • Check blood sugar regularly<br>
-        • Take medicines on time<br><br>
-        Would you like a personalized diet chart? Click on "Diet Generator" in the menu!`;
-  }
-
-  if (lower.includes("pregnant") || lower.includes("pregnancy")) {
-    return `Congratulations! For a healthy pregnancy:<br><br>
-        <b>Essential care:</b><br>
-        • Take folic acid and iron tablets daily<br>
-        • Eat protein-rich foods (dal, eggs, milk)<br>
-        • Stay hydrated - 10-12 glasses water<br>
-        • Sleep 8 hours, avoid heavy work<br><br>
-        <b>Warning signs - see doctor immediately:</b><br>
-        • Bleeding or spotting<br>
-        • Severe headache or vision problems<br>
-        • Swelling of hands/feet<br>
-        • Baby not moving<br><br>
-        <b>Free government scheme:</b> Register for Janani Suraksha Yojana (JSY) for free delivery and Rs. 1400 cash assistance.`;
-  }
-
-  // Default response
-  return `Thank you for sharing. To help you better, could you tell me:<br><br>
-    1. How long have you had these symptoms?<br>
-    2. Any other symptoms (fever, vomiting, etc.)?<br>
-    3. Your age and any existing health conditions?<br><br>
-    In the meantime, rest well and stay hydrated. If symptoms worsen, please consult a doctor through our "Doctor Connect" feature.`;
-}
-
-function sendQuickMessage(message) {
-  document.getElementById("chatInput").value = message;
-  sendMessage();
-}
-
-function heroChat(input) {
-  if (event.key === "Enter") {
-    showSection("ai-assistant");
-    setTimeout(() => {
-      document.getElementById("chatInput").value = input.value;
-      sendMessage();
-    }, 500);
-  }
-}
-
-function clearChat() {
-  document.getElementById("chatContainer").innerHTML = `
-        <div class="flex items-start space-x-3">
-            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                <i class="fas fa-robot text-purple-600"></i>
-            </div>
-            <div class="bg-white rounded-2xl rounded-tl-none p-4 shadow-md max-w-[80%]">
-                <p class="text-gray-800">Chat cleared. How can I help you today?</p>
-            </div>
-        </div>
-    `;
-}
-
 // Voice Functions
 function toggleVoiceInput() {
   document.getElementById("voiceModal").classList.remove("hidden");
@@ -401,7 +173,8 @@ function toggleVoiceInput() {
 
     recognition.onresult = function (event) {
       const transcript = event.results[0][0].transcript;
-      document.getElementById("chatInput").value = transcript;
+      const aiPromptInput = document.getElementById("ai-prompt-input");
+      if (aiPromptInput) aiPromptInput.value = transcript;
     };
 
     recognition.onend = function () {
@@ -416,7 +189,7 @@ function closeVoiceModal() {
 
 function processVoice() {
   closeVoiceModal();
-  sendMessage();
+  handleAiRequest();
 }
 
 function speakResponse(text) {
@@ -446,6 +219,341 @@ function triggerSOS() {
 
 function closeSOS() {
   document.getElementById("sosModal").classList.add("hidden");
+}
+
+// Medicine Analyzer Functions
+function previewMedicineImage(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      document.getElementById("medicine-preview").src = e.target.result;
+      document
+        .getElementById("medicine-preview-container")
+        .classList.remove("hidden");
+      document.getElementById("medicine-upload-area").classList.add("hidden");
+      document.getElementById("medicine-results").classList.add("hidden");
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function resetMedicineUpload() {
+  document.getElementById("medicine-file-input").value = "";
+  document.getElementById("medicine-preview").src = "";
+  document.getElementById("medicine-preview-container").classList.add("hidden");
+  document.getElementById("medicine-upload-area").classList.remove("hidden");
+  document.getElementById("medicine-results").classList.add("hidden");
+}
+
+async function analyzeMedicine() {
+  const preview = document.getElementById("medicine-preview");
+  const loading = document.getElementById("analyzer-loading");
+  const resultsArea = document.getElementById("medicine-results");
+  const analyzeBtn = document.getElementById("analyze-btn");
+
+  if (!preview.src) {
+    showNotification("Please upload an image first", "error");
+    return;
+  }
+
+  loading.classList.remove("hidden");
+  resultsArea.classList.add("hidden");
+  document.getElementById("medicine-preview-container").classList.add("hidden");
+  analyzeBtn.disabled = true;
+
+  try {
+    const response = await fetch("/api/analyze-medicine", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: preview.src }),
+    });
+
+    // Check if response is JSON
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      const text = await response.text();
+      console.error("Non-JSON response received:", text);
+      throw new Error(
+        `Server returned unexpected format (Status: ${response.status}). If the image is too large, try a smaller one.`,
+      );
+    }
+
+    const data = await response.json();
+    if (!response.ok)
+      throw new Error(data.error || `Server error: ${response.status}`);
+
+    if (data.error) {
+      showNotification(data.error, "warning");
+      loading.classList.add("hidden");
+      analyzeBtn.disabled = false;
+      return;
+    }
+
+    renderMedicineResults(data);
+    resultsArea.classList.remove("hidden");
+    showNotification("Analysis complete!", "success");
+  } catch (error) {
+    console.error("Medicine analysis error:", error);
+    showNotification(error.message, "error");
+  } finally {
+    loading.classList.add("hidden");
+    analyzeBtn.disabled = false;
+  }
+}
+
+function renderMedicineResults(data) {
+  const container = document.getElementById("medicine-results");
+
+  const createList = (items) => {
+    if (!items || !Array.isArray(items) || items.length === 0)
+      return "Not specified";
+    return `<ul class="list-disc ml-5 space-y-1">${items.map((i) => `<li>${i}</li>`).join("")}</ul>`;
+  };
+
+  container.innerHTML = `
+    <!-- Header: Medicine Identity -->
+    <div class="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-3xl p-8 text-white shadow-xl mb-8 relative overflow-hidden">
+      <div class="relative z-10">
+        <div class="flex items-center gap-4 mb-2">
+          <div class="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
+            <i class="fas fa-pills text-2xl text-white"></i>
+          </div>
+          <div>
+            <h3 class="text-2xl font-black leading-tight">${data.medicineName || "Unknown Medicine"}</h3>
+            <p class="text-purple-100 text-sm font-medium opacity-90">${data.composition || "Active ingredients not listed"}</p>
+          </div>
+        </div>
+      </div>
+      <i class="fas fa-prescription-bottle-alt absolute -right-4 -bottom-4 text-9xl text-white/10 transform -rotate-12"></i>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-8">
+      <!-- Left Column: Usage & Clinical Info -->
+      <div class="space-y-6">
+        <!-- Dosage Card -->
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 h-fit">
+          <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
+            <h4 class="font-bold text-gray-800 flex items-center">
+              <i class="fas fa-clock mr-2 text-purple-600"></i>Usage
+            </h4>
+            <div class="px-3 py-1 bg-green-50 text-green-700 rounded-full text-[11px] font-bold border border-green-100 max-w-[200px] text-center leading-tight">
+              ${data.dosageFrequency || "As directed"}
+            </div>
+          </div>
+          
+          <div class="space-y-5">
+            <div class="grid grid-cols-[80px_1fr] gap-4 items-start text-sm">
+              <span class="text-gray-400 font-medium pt-0.5">Amount</span>
+              <span class="font-bold text-gray-800 leading-snug">${data.recommendedDosage || "Consult doctor"}</span>
+            </div>
+            <div class="grid grid-cols-[80px_1fr] gap-4 items-start text-sm">
+              <span class="text-gray-400 font-medium pt-0.5">Timing</span>
+              <span class="font-bold text-gray-800 leading-snug">${data.whenToTake || "As advised"}</span>
+            </div>
+            <div class="bg-purple-50 rounded-2xl p-4 border border-purple-100 mt-2">
+               <label class="text-[10px] font-bold text-purple-400 uppercase tracking-widest block mb-1">Suggested Schedule</label>
+               <p class="text-purple-900 font-bold text-base leading-tight">${data.typicalSchedule || "Follow professional advice"}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Medical Uses -->
+        <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100">
+          <h5 class="font-bold text-gray-800 mb-3 flex items-center text-sm">
+            <i class="fas fa-notes-medical mr-2 text-blue-500"></i>Primary Medical Uses
+          </h5>
+          <div class="text-sm text-gray-600">
+            ${createList(data.medicalUses)}
+          </div>
+        </div>
+
+        <!-- Side Effects -->
+        <div class="bg-orange-50 rounded-2xl p-6 border border-orange-100">
+          <h4 class="font-bold text-orange-800 mb-3 text-sm flex items-center">
+            <i class="fas fa-vial mr-2"></i>Common Side Effects
+          </h4>
+          <div class="text-xs text-orange-900/80">
+            ${createList(data.commonSideEffects || data.sideEffects)}
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Safety & Precautions -->
+      <div class="space-y-6">
+        <!-- Safety Card (Merged) -->
+        <div class="bg-red-50 rounded-3xl p-6 border border-red-100 shadow-sm h-fit">
+          <h4 class="font-bold text-red-800 mb-4 flex items-center">
+            <i class="fas fa-triangle-exclamation mr-2"></i>Safety & Precautions
+          </h4>
+          <div class="text-sm text-red-700 leading-relaxed">
+            ${createList(data.safetyPrecautions || (Array.isArray(data.warnings) ? [...data.warnings, ...(data.whoShouldNotTake || [])] : data.warnings))}
+          </div>
+        </div>
+
+        <!-- Age Group & Storage - Compact -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+            <h5 class="font-bold text-gray-800 mb-2 text-[10px] uppercase tracking-widest text-indigo-500">Age Group</h5>
+            <p class="text-xs text-gray-600 font-bold">${data.suitableAgeGroup || "See instructions"}</p>
+          </div>
+          <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+            <h5 class="font-bold text-gray-800 mb-2 text-[10px] uppercase tracking-widest text-teal-500">Storage</h5>
+            <p class="text-[10px] text-gray-600 leading-tight">${data.storageInstructions || "Store in cool, dry place."}</p>
+          </div>
+        </div>
+
+        <!-- Disclaimer Link Hint -->
+        <div class="text-[10px] text-gray-400 text-center italic mt-4">
+          Scroll down to read the full medical disclaimer.
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Pharmacy Finder Functions
+function initPharmacyMap() {
+  if (pharmacyMap) {
+    pharmacyMap.remove();
+    pharmacyMap = null;
+  }
+
+  pharmacyMap = L.map("pharmacy-map").setView([20.5937, 78.9629], 5);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "© OpenStreetMap contributors",
+  }).addTo(pharmacyMap);
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        const radius = document.getElementById("radius-range").value;
+
+        pharmacyMap.setView([lat, lng], 14);
+
+        L.circle([lat, lng], {
+          radius: parseInt(radius),
+          color: "#3b82f6",
+          fillColor: "#3b82f6",
+          fillOpacity: 0.1,
+        }).addTo(pharmacyMap);
+
+        const userIcon = L.divIcon({
+          className: "user-marker",
+          html: '<div class="user-marker-icon" style="width: 20px; height: 20px;"></div>',
+          iconSize: [20, 20],
+          iconAnchor: [10, 10],
+        });
+
+        L.marker([lat, lng], { icon: userIcon })
+          .addTo(pharmacyMap)
+          .bindPopup("Your Location");
+
+        fetchNearbyPharmacies(lat, lng, radius);
+      },
+      () => {
+        showNotification("Location access denied.", "warning");
+      },
+    );
+  }
+}
+
+async function fetchNearbyPharmacies(lat, lng, radius) {
+  const listContainer = document.getElementById("pharmacy-list");
+  listContainer.innerHTML =
+    ' <div class="text-center p-8"><i class="fas fa-spinner fa-spin text-blue-600 text-2xl"></i><p class="mt-2 text-gray-500">Searching...</p></div>';
+
+  try {
+    const response = await fetch(
+      `/api/nearby-pharmacies?lat=${lat}&lon=${lng}&radius=${radius}`,
+    );
+    const data = await response.json();
+
+    if (!response.ok) throw new Error(data.error || "Search failed");
+
+    listContainer.innerHTML = "";
+
+    if (data.pharmacies.length === 0) {
+      listContainer.innerHTML = `
+        <div class="text-center p-8">
+          <p class="text-gray-500 mb-4">No pharmacy stores found checkout hospital medicine centers</p>
+          <button onclick="showSection('emergency'); setTimeout(initMap, 100);" class="px-6 py-2 bg-red-100 text-red-600 rounded-xl font-bold hover:bg-red-200 transition">
+            <i class="fas fa-hospital mr-2"></i>Nearby hospitals
+          </button>
+        </div>`;
+      return;
+    }
+
+    const pharmacyIcon = L.divIcon({
+      className: "pharmacy-marker",
+      html: '<div class="hospital-marker-icon" style="width: 30px; height: 30px; background-color: #3b82f6;"><i class="fas fa-prescription-bottle-alt"></i></div>',
+      iconSize: [30, 30],
+      iconAnchor: [15, 15],
+    });
+
+    data.pharmacies.forEach((p) => {
+      // Calculate distance
+      const dist = pharmacyMap.distance([lat, lng], [p.lat, p.lon]);
+      const distanceText = (dist / 1000).toFixed(1) + " km";
+
+      // Add marker
+      const marker = L.marker([p.lat, p.lon], { icon: pharmacyIcon }).addTo(
+        pharmacyMap,
+      );
+
+      const popupContent = `
+        <div class="popup-header" style="background: #3b82f6;">${p.name}</div>
+        <div class="popup-body">
+          <p class="text-sm mb-1"><b>Distance:</b> ${distanceText}</p>
+          <p class="text-sm mb-2"><b>Status:</b> ${p.opening_hours}</p>
+          <button onclick="getDirections(${p.lat}, ${p.lon})" class="popup-btn" style="color: #3b82f6; background: #eff6ff;">
+            <i class="fas fa-directions mr-1"></i> Directions
+          </button>
+        </div>
+      `;
+      marker.bindPopup(popupContent);
+
+      // Add to list
+      const item = document.createElement("div");
+      item.className =
+        "bg-gray-50 p-4 rounded-2xl border border-gray-100 hover:border-blue-300 transition-all cursor-pointer group";
+      item.onclick = () => {
+        pharmacyMap.setView([p.lat, p.lon], 16);
+        marker.openPopup();
+      };
+      item.innerHTML = `
+        <div class="flex justify-between items-start">
+          <div class="flex-1">
+            <h4 class="font-bold text-gray-800 group-hover:text-blue-600 transition">${p.name}</h4>
+            <p class="text-xs text-gray-500 mb-2 truncate">${p.address}</p>
+            <div class="flex gap-2">
+              <span class="text-[10px] font-bold bg-blue-100 text-blue-600 px-2 py-1 rounded-full">${distanceText}</span>
+              <span class="text-[10px] font-bold bg-green-100 text-green-600 px-2 py-1 rounded-full">${p.opening_hours === "Not available" ? "Open" : p.opening_hours}</span>
+            </div>
+          </div>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}" target="_blank" class="w-10 h-10 bg-white shadow-sm rounded-xl flex items-center justify-center text-blue-600 hover:bg-blue-600 hover:text-white transition">
+            <i class="fas fa-directions"></i>
+          </a>
+        </div>
+      `;
+      listContainer.appendChild(item);
+    });
+  } catch (error) {
+    console.error("Pharmacy fetch error:", error);
+    listContainer.innerHTML = `<div class="text-center p-8 text-red-500">Error: ${error.message}</div>`;
+  }
+}
+
+function centerOnUser() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition((position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      pharmacyMap.setView([lat, lng], 15);
+    });
+  }
 }
 
 // Map Functions
@@ -767,98 +875,6 @@ function updateAILanguage() {
   showNotification(`AI will now respond in ${langName}`, "success");
 }
 
-// Charts
-function initCharts() {
-  // Adherence Chart
-  const ctx = document.getElementById("adherenceChart");
-  if (ctx) {
-    new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-        datasets: [
-          {
-            label: "Medicine Taken",
-            data: [2, 3, 2, 3, 3, 2, 3],
-            backgroundColor: "rgba(234, 179, 8, 0.8)",
-            borderRadius: 5,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: { beginAtZero: true, max: 3 },
-        },
-      },
-    });
-  }
-}
-
-function updateDashboardCharts() {
-  const ctx = document.getElementById("healthTrendChart");
-  if (ctx) {
-    new Chart(ctx, {
-      type: "line",
-      data: {
-        labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-        datasets: [
-          {
-            label: "Blood Sugar",
-            data: [110, 105, 120, 115, 110, 108, 112],
-            borderColor: "rgb(147, 51, 234)",
-            tension: 0.4,
-          },
-          {
-            label: "Blood Pressure",
-            data: [120, 118, 122, 119, 121, 118, 120],
-            borderColor: "rgb(59, 130, 246)",
-            tension: 0.4,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        interaction: {
-          intersect: false,
-          mode: "index",
-        },
-      },
-    });
-  }
-}
-
-function updateAdherenceChart() {
-  // Update chart data in real app
-}
-
-// Stats Animation
-function animateStats() {
-  const stats = [
-    { id: "statUsers", target: 50000, suffix: "+" },
-    { id: "statConsultations", target: 125000, suffix: "+" },
-    { id: "statDoctors", target: 2500, suffix: "+" },
-    { id: "statLives", target: 100000, suffix: "+" },
-  ];
-
-  stats.forEach((stat) => {
-    const element = document.getElementById(stat.id);
-    if (element) {
-      let current = 0;
-      const increment = stat.target / 100;
-      const timer = setInterval(() => {
-        current += increment;
-        if (current >= stat.target) {
-          current = stat.target;
-          clearInterval(timer);
-        }
-        element.textContent =
-          Math.floor(current).toLocaleString() + stat.suffix;
-      }, 20);
-    }
-  });
-}
-
 // Notifications
 function showNotification(message, type = "info") {
   const div = document.createElement("div");
@@ -1124,6 +1140,7 @@ function changeProfilePicture() {
   fileInput.click();
 }
 
+/*
 // Service Worker Registration
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
@@ -1140,6 +1157,7 @@ if ("serviceWorker" in navigator) {
       });
   });
 }
+*/
 
 function sendImage() {
   showNotification("Image upload feature coming soon!", "info");
@@ -1239,171 +1257,6 @@ function downloadHealthData() {
       showNotification("Failed to generate report. Please try again.", "error");
     });
 }
-
-// --- Capacitor Plugin Support ---
-const { Plugins, Capacitor: cap } = window;
-const { OfflineAi } = Plugins;
-
-// --- UI Elements ---
-const networkStatusIndicator = document.getElementById(
-  "network-status-indicator",
-);
-const downloadContainer = document.getElementById("download-container");
-const downloadButton = document.getElementById("download-button");
-const downloadProgress = document.getElementById("download-progress");
-const aiInteractionContainer = document.getElementById(
-  "ai-interaction-container",
-);
-const aiPromptInput = document.getElementById("ai-prompt-input");
-const sendButton = document.getElementById("send-button");
-const aiResponseArea = document.getElementById("ai-response-area");
-
-// --- Global State ---
-// isOnline is already declared at the top of the file
-let gemmaStatus = "unavailable"; // 'unavailable', 'initializing', 'ready'
-let modelPath = "";
-
-// --- Network and Status Handling ---
-function updateUi(status, online) {
-  isOnline = online;
-  let statusText = "";
-  let color = "grey";
-
-  // Synchronize with the main offline bar
-  const offlineBar = document.getElementById("offlineBar");
-  if (offlineBar) {
-    offlineBar.style.display = online ? "none" : "block";
-  }
-
-  // Hide all containers by default
-  if (downloadContainer) downloadContainer.style.display = "none";
-  if (aiInteractionContainer) aiInteractionContainer.style.display = "none";
-
-  switch (status) {
-    case "🟢 Online (Gemini)":
-      statusText = status;
-      color = "green";
-      if (aiInteractionContainer)
-        aiInteractionContainer.style.display = "block";
-      break;
-    case "🔵 Offline (Gemma)":
-      statusText = status;
-      color = "blue";
-      if (aiInteractionContainer)
-        aiInteractionContainer.style.display = "block";
-      gemmaStatus = "ready";
-      break;
-    case "🔵 Offline (Model Not Found)":
-      statusText = status;
-      color = "orange";
-      if (downloadContainer) downloadContainer.style.display = "block";
-      gemmaStatus = "unavailable";
-      break;
-    default:
-      statusText = "⚪ Initializing...";
-      break;
-  }
-
-  if (networkStatusIndicator) {
-    networkStatusIndicator.textContent = statusText;
-    networkStatusIndicator.style.color = color;
-  }
-}
-
-// Listen for the detailed status event from native Android code
-window.addEventListener("networkStatusChange", (event) => {
-  if (event.detail) {
-    updateUi(event.detail.status, event.detail.isOnline);
-  }
-});
-
-// --- Model Download Logic ---
-async function startModelDownload() {
-  if (!isOnline) {
-    if (typeof showNotification === "function") {
-      showNotification(
-        "Please connect to the internet to download the model.",
-        "warning",
-      );
-    } else {
-      alert("Please connect to the internet to download the model.");
-    }
-    return;
-  }
-  if (!downloadButton) return;
-
-  downloadButton.disabled = true;
-  downloadButton.textContent = "Downloading...";
-  if (downloadProgress) downloadProgress.style.width = "0%";
-
-  try {
-    const call = await OfflineAi.downloadModel({}, (data, err) => {
-      if (err) {
-        console.error("Download progress error", err);
-        return;
-      }
-      if (data && typeof data.progress !== "undefined" && downloadProgress) {
-        downloadProgress.style.width = `${data.progress}%`;
-      }
-    });
-
-    console.log("Download complete:", call);
-    modelPath = call.path;
-    downloadButton.textContent = "Download Complete! Initializing...";
-
-    await OfflineAi.initializeGemma({ path: modelPath });
-    if (typeof showNotification === "function") {
-      showNotification("Offline AI model ready!", "success");
-    }
-  } catch (error) {
-    console.error("Download failed:", error);
-    downloadButton.disabled = false;
-    downloadButton.textContent = "Download Failed. Retry?";
-    if (aiResponseArea)
-      aiResponseArea.textContent = `Download failed: ${error.message}`;
-    if (typeof showNotification === "function") {
-      showNotification("Model download failed.", "error");
-    }
-  }
-}
-
-if (downloadButton)
-  downloadButton.addEventListener("click", startModelDownload);
-
-// --- AI Request Routing ---
-async function handleAiRequest() {
-  const prompt = aiPromptInput ? aiPromptInput.value : "";
-  if (!prompt) return;
-
-  if (aiResponseArea) aiResponseArea.textContent = "Processing...";
-  if (sendButton) sendButton.disabled = true;
-
-  try {
-    if (isOnline) {
-      console.log("Routing to Gemini API (Online)...");
-      if (aiResponseArea)
-        aiResponseArea.textContent =
-          "Placeholder for Gemini Response. You are online!";
-    } else {
-      if (gemmaStatus === "ready") {
-        console.log("Routing to Local Gemma (Offline)...");
-        const result = await OfflineAi.generateResponse({ prompt: prompt });
-        if (aiResponseArea) aiResponseArea.textContent = result.response;
-      } else {
-        if (aiResponseArea)
-          aiResponseArea.textContent =
-            "Offline AI model is not available. Please download it first.";
-      }
-    }
-  } catch (error) {
-    console.error("AI Request Failed:", error);
-    if (aiResponseArea) aiResponseArea.textContent = `Error: ${error.message}`;
-  } finally {
-    if (sendButton) sendButton.disabled = false;
-  }
-}
-
-if (sendButton) sendButton.addEventListener("click", handleAiRequest);
 
 // Family Member Logic
 function openAddMemberModal() {
@@ -1510,4 +1363,316 @@ function renderFamilyMember(member) {
 function loadFamilyMembers() {
   const members = JSON.parse(localStorage.getItem("familyMembers") || "[]");
   members.forEach((member) => renderFamilyMember(member));
+}
+
+// --- Capacitor Plugin Support ---
+// Note: OfflineAi plugin is accessed inside functions when needed (not at top level)
+// to avoid errors when running in browser or before Capacitor is fully loaded
+
+// --- Global State ---
+// isOnline is already declared at the top of the file
+let gemmaStatus = "unavailable"; // 'unavailable', 'initializing', 'ready'
+let modelPath = "";
+
+// --- Network and Status Handling ---
+function updateUi(isOnlineParam, isGemmaInitialized, status) {
+  // Update global state
+  isOnline = isOnlineParam;
+
+  // Get UI elements with proper null checks
+  const offlineBar = document.getElementById("offlineBar");
+  const downloadContainerEl = document.getElementById("download-container");
+  const aiInteractionContainerEl = document.getElementById(
+    "ai-interaction-container",
+  );
+  const networkStatusIndicatorEl = document.getElementById(
+    "network-status-indicator",
+  );
+  console.log(
+    "DIAGNOSTIC: Found network-status-indicator element:",
+    networkStatusIndicatorEl,
+  );
+  const chatInputEl = document.getElementById("ai-prompt-input");
+  const downloadButtonEl = document.getElementById("download-button");
+
+  // Update status text display
+  if (networkStatusIndicatorEl) {
+    networkStatusIndicatorEl.textContent = status || "⚪ Initializing...";
+
+    // Set color based on status content
+    if (status && status.includes("Online")) {
+      networkStatusIndicatorEl.style.color = "green";
+    } else if (
+      status &&
+      status.includes("Offline") &&
+      status.includes("Gemma")
+    ) {
+      networkStatusIndicatorEl.style.color = "blue";
+    } else if (status && status.includes("Not Found")) {
+      networkStatusIndicatorEl.style.color = "orange";
+    } else {
+      networkStatusIndicatorEl.style.color = "grey";
+    }
+  }
+
+  // Update offline bar
+  if (offlineBar) {
+    offlineBar.style.display = isOnline ? "none" : "block";
+  }
+
+  // Determine if model is available for offline use
+  const modelAvailable = isGemmaInitialized || isOnline;
+
+  // Handle chat input state
+  if (chatInputEl) {
+    if (modelAvailable) {
+      chatInputEl.disabled = false;
+      chatInputEl.placeholder = isOnline
+        ? "Ask me anything about your health..."
+        : "Ask me anything (Offline Mode)...";
+    } else {
+      chatInputEl.disabled = true;
+      chatInputEl.placeholder = "Download offline model to use AI assistant...";
+    }
+  }
+
+  // Handle download button visibility
+  // Show download button if the offline model is not ready.
+  if (!isGemmaInitialized) {
+    if (downloadContainerEl) downloadContainerEl.style.display = "block"; // Also, allow the main UI to be visible if online.
+    if (isOnline) {
+      if (aiInteractionContainerEl)
+        aiInteractionContainerEl.style.display = "block";
+    } else {
+      if (aiInteractionContainerEl)
+        aiInteractionContainerEl.style.display = "none";
+    }
+    gemmaStatus = "unavailable";
+  } else {
+    // If Gemma is initialized, always hide the download button and show the AI UI.
+    if (downloadContainerEl) downloadContainerEl.style.display = "none";
+    if (aiInteractionContainerEl)
+      aiInteractionContainerEl.style.display = "block";
+    gemmaStatus = "ready";
+  }
+
+  // Log for debugging
+  console.log("UI Updated:", {
+    isOnline,
+    isGemmaInitialized,
+    status,
+    modelAvailable,
+    gemmaStatus,
+  });
+}
+
+// Listen for the detailed status event from native Android code
+window.addEventListener("networkStatusChange", (event) => {
+  // DEBUG: Log to verify event is being received
+  console.log(
+    "DEBUG: networkStatusChange event RECEIVED. Details:",
+    event.detail,
+  );
+
+  if (event.detail) {
+    const { isOnline, isGemmaInitialized, status } = event.detail;
+    updateUi(isOnline, isGemmaInitialized, status);
+  }
+});
+
+// --- Model Download Logic ---
+async function startModelDownload() {
+  if (!isOnline) {
+    if (typeof showNotification === "function") {
+      showNotification(
+        "Please connect to the internet to download the model.",
+        "warning",
+      );
+    } else {
+      alert("Please connect to the internet to download the model.");
+    }
+    return;
+  }
+
+  const downloadButtonEl = document.getElementById("download-button");
+  const downloadProgressEl = document.getElementById("download-progress");
+
+  if (!downloadButtonEl) return;
+
+  downloadButtonEl.disabled = true;
+  downloadButtonEl.textContent = "Downloading...";
+  if (downloadProgressEl) downloadProgressEl.style.width = "0%";
+
+  // Progress event listener
+  const progressListener = (event) => {
+    if (
+      event.detail &&
+      typeof event.detail.progress !== "undefined" &&
+      downloadProgressEl
+    ) {
+      downloadProgressEl.style.width = `${event.detail.progress}%`;
+      console.log(`Download progress: ${event.detail.progress}%`);
+    }
+  };
+
+  // Add progress listener
+  window.addEventListener("downloadProgress", progressListener);
+
+  try {
+    // Check if Capacitor and OfflineAi plugin are available
+    if (
+      !window.Capacitor ||
+      !window.Capacitor.Plugins ||
+      !window.Capacitor.Plugins.OfflineAi
+    ) {
+      throw new Error(
+        "OfflineAi plugin not available. Make sure you're running in a Capacitor environment.",
+      );
+    }
+
+    const OfflineAi = window.Capacitor.Plugins.OfflineAi;
+
+    console.log("Starting model download...");
+    const result = await OfflineAi.downloadModel();
+
+    console.log("Download complete:", result);
+    modelPath = result.path;
+
+    if (downloadButtonEl) {
+      downloadButtonEl.textContent = "Download Complete! Initializing...";
+    }
+    if (downloadProgressEl) {
+      downloadProgressEl.style.width = "100%";
+    }
+
+    // Initialize Gemma with the downloaded model
+    console.log("Initializing Gemma with path:", modelPath);
+    await OfflineAi.initializeGemma({ path: modelPath });
+
+    if (typeof showNotification === "function") {
+      showNotification("Offline AI model ready!", "success");
+    }
+
+    // The native code will dispatch a networkStatusChange event with updated status
+    // which will trigger the UI update automatically
+  } catch (error) {
+    console.error("Download failed:", error);
+
+    if (downloadButtonEl) {
+      downloadButtonEl.disabled = false;
+      downloadButtonEl.textContent = "Download Failed. Retry?";
+    }
+
+    if (typeof showNotification === "function") {
+      showNotification(`Model download failed: ${error.message}`, "error");
+    } else {
+      alert(`Download failed: ${error.message}`);
+    }
+  } finally {
+    // Clean up progress listener
+    window.removeEventListener("downloadProgress", progressListener);
+  }
+}
+
+// Attach download button event listener
+const downloadBtn = document.getElementById("download-button");
+if (downloadBtn) {
+  downloadBtn.addEventListener("click", startModelDownload);
+}
+
+// --- AI Request Routing ---
+async function handleAiRequest() {
+  const aiPromptInput = document.getElementById("ai-prompt-input");
+  const aiResponseArea = document.getElementById("ai-response-area");
+  const sendButton = document.getElementById("send-button");
+
+  const prompt = aiPromptInput ? aiPromptInput.value : "";
+  if (!prompt) return;
+
+  if (aiResponseArea) aiResponseArea.textContent = "Processing...";
+  if (sendButton) sendButton.disabled = true;
+
+  try {
+    if (isOnline) {
+      console.log("Routing to Gemini API (Online)...");
+
+      // IMPORTANT: Replace with your computer's local IP address
+      const PROXY_URL = "http://10.69.32.72:3000/api/chat";
+
+      const response = await fetch(PROXY_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: prompt }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to fetch from Gemini API");
+      }
+
+      const data = await response.json();
+      if (aiResponseArea)
+        aiResponseArea.textContent = data.reply || data.response;
+    } else {
+      if (gemmaStatus === "ready") {
+        console.log("Routing to Local Gemma (Offline)...");
+        if (
+          window.Capacitor &&
+          window.Capacitor.Plugins &&
+          window.Capacitor.Plugins.OfflineAi
+        ) {
+          const { OfflineAi } = window.Capacitor.Plugins;
+          const result = await OfflineAi.generateResponse({ prompt: prompt });
+          if (aiResponseArea) aiResponseArea.textContent = result.response;
+        } else {
+          throw new Error("OfflineAi plugin not available");
+        }
+      } else {
+        if (aiResponseArea)
+          aiResponseArea.textContent =
+            "Offline AI model is not available. Please download it first.";
+      }
+    }
+  } catch (error) {
+    console.error("AI Request Failed:", error);
+    if (aiResponseArea) aiResponseArea.textContent = `Error: ${error.message}`;
+  } finally {
+    if (sendButton) sendButton.disabled = false;
+  }
+}
+
+// --- Charts ---
+function initCharts() {
+  // Adherence Chart
+  const ctx = document.getElementById("adherenceChart");
+  if (ctx) {
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        datasets: [
+          {
+            label: "Medicine Taken",
+            data: [2, 3, 2, 3, 3, 2, 3],
+            backgroundColor: "rgba(234, 179, 8, 0.8)",
+            borderRadius: 5,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true, max: 3 },
+        },
+      },
+    });
+  }
+}
+
+// Attach send button event listener
+const sendBtn = document.getElementById("send-button");
+if (sendBtn) {
+  sendBtn.addEventListener("click", handleAiRequest);
 }

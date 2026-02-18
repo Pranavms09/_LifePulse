@@ -9,24 +9,29 @@ Affordable, offline-ready healthcare support designed for rural India, featuring
 ## 🌟 Features
 
 ### Core Platform
+
 - **Brand-Focused Homepage** - Clean landing page with mission statement and platform overview
 - **Professional Login System** - Role-based authentication (User/Doctor/Health Worker)
 - **Fixed Navigation** - Main features + hamburger menu for secondary tools
 - **Responsive Design** - Mobile-first, optimized for low-bandwidth rural areas
 
 ### Main Features
+
 1. **🤖 AI Health Assistant** - 24/7 intelligent health guidance with symptom checker
 2. **🚨 Emergency Help** - One-touch SOS button with hospital locator
 3. **👨‍⚕️ Doctor Connect** - Online consultations with verified doctors
 4. **📊 Health Dashboard** - Track family health metrics and trends
 
 ### Additional Features (Hamburger Menu)
+
 - Medicine Reminder
 - Family Dashboard
 - Voice Assistant (Multi-language)
 - Report Analyzer
 - Diet Generator
 - Hospital Finder
+- **AI Medicine Analyzer** (New) - Photo-based medicine info extraction
+- **Pharmacy Finder** (New) - Locate nearby medical stores on map
 - Settings
 
 ---
@@ -34,22 +39,29 @@ Affordable, offline-ready healthcare support designed for rural India, featuring
 ## 🚀 Quick Start
 
 ### 1. Local Development (Vercel Dev)
+
 The recommended way to run LifePulse locally is using the Vercel CLI, which handles both frontline and serverless functions correctly.
+
 ```bash
 # Run the complete environment
 npm run dev
 ```
+
 Open [http://localhost:3000](http://localhost:3000) to view it.
 
 ### 2. Simple Static Server
+
 If you only want to test the UI without AI features:
+
 ```bash
 # Using Python
 python -m http.server 8000
 ```
 
 ### 3. Legacy Local Server
+
 For testing the legacy Express backend:
+
 ```bash
 npm run dev:local
 ```
@@ -76,17 +88,20 @@ LifePulse/
 ## 🎨 Design System
 
 ### Colors
+
 - **Primary Blue**: `#4A90E2`
 - **Primary Green**: `#5CB85C`
 - **Gradient**: Blue → Green (135deg)
 - **Background**: Light blue → Light green gradient
 
 ### Typography
+
 - **Font**: System fonts (performance-optimized)
 - **Base Size**: 18px (accessibility for elderly users)
 - **Headings**: Bold, clean hierarchy
 
 ### Components
+
 - Rounded buttons with gradient backgrounds
 - Soft shadows for depth
 - Smooth hover animations
@@ -121,6 +136,7 @@ For demonstration purposes, the login accepts any credentials:
 ## 🎯 Key Features Explained
 
 ### 1. Homepage (index.html)
+
 - **NO feature sections** - Pure branding only
 - Animated medical icons floating in background
 - Social impact statistics with counter animations
@@ -128,12 +144,14 @@ For demonstration purposes, the login accepts any credentials:
 - Trust badges (AI-Powered, Works Offline, Secure)
 
 ### 2. Navigation System
+
 - **Top Nav**: Home, AI Assistant, Emergency, Doctor Connect, Dashboard
 - **Hamburger Menu**: 7 secondary features
 - Fixed position with scroll effects
 - Mobile responsive hamburger collapse
 
 ### 3. AI Assistant (pages/ai-assistant.html)
+
 - Interactive chat interface
 - Quick reply buttons
 - Symptom checker form with emergency detection
@@ -141,12 +159,14 @@ For demonstration purposes, the login accepts any credentials:
 - Medical disclaimer
 
 ### 4. Emergency Help (pages/emergency.html)
+
 - Large SOS button with pulse animation
 - Press & hold for 3 seconds to activate
 - Nearby hospitals list (demo data)
 - Emergency contact numbers (Ambulance: 108, etc.)
 
 ### 5. Login System (login.html)
+
 - Email/Phone + Password inputs
 - Password show/hide toggle
 - Remember me checkbox
@@ -174,7 +194,7 @@ All layouts adapt smoothly across devices.
 - Keyboard navigation support
 - Screen reader friendly
 - Focus indicators on all interactive elements
--Reduced motion support
+  -Reduced motion support
 
 ---
 
@@ -190,17 +210,20 @@ All layouts adapt smoothly across devices.
 ## 🚧 Future Enhancements
 
 ### Backend Integration
+
 1. Replace demo authentication with real API
 2. Connect AI chat to actual LLM (Gemini API)
 3. Integrate Google Maps for hospital locator
 4. Real-time emergency alert system
 
 ### Offline Functionality
+
 1. Service worker for offline access
 2. IndexedDB for local data storage
 3. Sync when connection available
 
 ### Additional Features
+
 1. Complete remaining feature pages
 2. Dark/light mode toggle
 3. Voice assistant with speech recognition
@@ -209,9 +232,11 @@ All layouts adapt smoothly across devices.
 ---
 
 ### Problem Statement
+
 Affordable AI healthcare for rural India with 850M+ people lacking access.
 
 ### Solution Highlights
+
 - ✅ **Offline-ready** - Works with poor connectivity
 - ✅ **AI-powered** - Intelligent health guidance 24/7
 - ✅ **Accessible** - Multi-language, voice support, elderly-friendly
@@ -219,6 +244,7 @@ Affordable AI healthcare for rural India with 850M+ people lacking access.
 - ✅ **Scalable** - Cloud-based, handles millions of userslvvsa
 
 ### Demo Strategy
+
 1. Show brand-focused homepage (professional first impression)
 2. Demonstrate login and role selection
 3. Interactive AI chat with symptom checking
