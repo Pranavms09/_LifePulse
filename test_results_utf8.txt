@@ -1,0 +1,11 @@
+﻿[dotenv@17.3.1] injecting env (3) from .env -- tip: ≡ƒöÉ encrypt with Dotenvx: https://dotenvx.com
+
+--- Testing model: gemini-1.5-flash ---
+
+--- Testing model: gemini-1.5-flash-latest ---
+
+--- Testing model: gemini-2.0-flash-exp ---
+
+--- Testing model: gemini-2.5-flash ---
+Γ£à SUCCESS for gemini-2.5-flash
+Response starts with: Hello! How can I help you today?

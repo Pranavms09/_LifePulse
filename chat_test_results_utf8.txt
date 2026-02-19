@@ -1,0 +1,5 @@
+﻿[dotenv@17.3.1] injecting env (3) from .env -- tip: ΓÜÖ∩╕Å  load multiple .env files with { path: ['.env.local', '.env'] }
+
+--- Testing model (Chat): gemini-2.5-flash ---
+Γ£à SUCCESS for gemini-2.5-flash (Chat)
+Response starts with: I'm doing great, thank you for asking! As an AI, I

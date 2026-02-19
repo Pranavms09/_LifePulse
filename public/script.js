@@ -138,6 +138,9 @@ function showSection(sectionId, updateHistory = true) {
     if (sectionId === "pharmacy-finder") {
       setTimeout(initPharmacyMap, 100);
     }
+    if (sectionId === "emergency") {
+      setTimeout(initMap, 100);
+    }
     if (sectionId === "dashboard") {
       updateDashboardCharts();
     }
@@ -771,71 +774,80 @@ function centerOnUser() {
 
 // Map Functions
 function initMap() {
+  const mapElement = document.getElementById("map");
+  if (!mapElement) return;
+
   if (map) {
-    map.remove();
+    try {
+      map.remove();
+    } catch (e) {
+      console.error("Error removing old map:", e);
+    }
     map = null;
   }
 
-  // Default view (center of India as fallback)
-  map = L.map("map").setView([20.5937, 78.9629], 5);
+  // Show loading indicator in map div
+  mapElement.innerHTML =
+    '<div class="flex items-center justify-center h-full bg-gray-100 text-gray-500 rounded-xl"><i class="fas fa-spinner fa-spin mr-2"></i> Initializing Map...</div>';
 
-  L.tileLayer(
-    "https://maps.geoapify.com/v1/tile/carto/{z}/{x}/{y}.png?apiKey=601eac944cc34c71a9566d0db43c475b",
-    {
-      attribution:
-        'Powered by <a href="https://www.geoapify.com/" target="_blank">Geoapify</a> | <a href="https://openmaptiles.org/" target="_blank">© OpenMapTiles</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap</a> contributors',
-    },
-  ).addTo(map);
+  setTimeout(() => {
+    try {
+      mapElement.innerHTML = ""; // Clear loader
+      map = L.map("map").setView([20.5937, 78.9629], 5);
 
-  // Get User Location
-  if (navigator.geolocation) {
-    showNotification("Locating you...", "info");
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution:
+          '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors',
+        maxZoom: 19,
+      }).addTo(map);
 
-        // Update map view
-        map.setView([lat, lng], 14);
+      // Get User Location
+      if (navigator.geolocation) {
+        showNotification("Locating you...", "info");
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            map.setView([lat, lng], 14);
 
-        // Add User Marker
-        const userIcon = L.divIcon({
-          className: "user-marker",
-          html: '<div class="user-marker-icon" style="width: 20px; height: 20px;"></div>',
-          iconSize: [20, 20],
-          iconAnchor: [10, 10],
-        });
+            const userIcon = L.divIcon({
+              className: "user-marker",
+              html: '<div class="user-marker-icon" style="width: 20px; height: 20px;"></div>',
+              iconSize: [20, 20],
+              iconAnchor: [10, 10],
+            });
 
-        L.marker([lat, lng], { icon: userIcon })
-          .addTo(map)
-          .bindPopup('<div class="popup-header">You are Here</div>')
-          .openPopup();
+            L.marker([lat, lng], { icon: userIcon })
+              .addTo(map)
+              .bindPopup('<div class="popup-header">You are Here</div>')
+              .openPopup();
 
-        // Fetch nearby hospitals
-        fetchNearbyHospitals(lat, lng);
-      },
-      () => {
-        showNotification(
-          "Location access denied. Using default location.",
-          "warning",
+            fetchNearbyHospitals(lat, lng);
+          },
+          (err) => {
+            console.error("Geolocation error:", err);
+            showNotification(
+              "Location access denied. Using default location.",
+              "warning",
+            );
+            const defaultLat = 28.6139;
+            const defaultLng = 77.209;
+            map.setView([defaultLat, defaultLng], 13);
+            fetchNearbyHospitals(defaultLat, defaultLng);
+          },
+          { timeout: 10000 },
         );
-        // Fallback to Delhi
+      } else {
         const defaultLat = 28.6139;
         const defaultLng = 77.209;
         map.setView([defaultLat, defaultLng], 13);
         fetchNearbyHospitals(defaultLat, defaultLng);
-      },
-    );
-  } else {
-    showNotification(
-      "Geolocation not supported. Using default location.",
-      "error",
-    );
-    const defaultLat = 28.6139;
-    const defaultLng = 77.209;
-    map.setView([defaultLat, defaultLng], 13);
-    fetchNearbyHospitals(defaultLat, defaultLng);
-  }
+      }
+    } catch (err) {
+      console.error("Leaflet init error:", err);
+      mapElement.innerHTML = `<div class="p-4 text-red-500 text-sm">Failed to initialize map: ${err.message}</div>`;
+    }
+  }, 200);
 }
 
 async function fetchNearbyHospitals(lat, lng) {
@@ -845,13 +857,13 @@ async function fetchNearbyHospitals(lat, lng) {
 
   try {
     const response = await fetch(
-      `https://api.geoapify.com/v2/places?categories=healthcare.hospital&filter=circle:${lng},${lat},5000&bias=proximity:${lng},${lat}&limit=10&apiKey=601eac944cc34c71a9566d0db43c475b`,
+      `/api/nearby-hospitals?lat=${lat}&lon=${lng}&radius=5000`,
     );
     const data = await response.json();
 
     hospitalList.innerHTML = "";
 
-    if (!data.features || data.features.length === 0) {
+    if (!data.hospitals || data.hospitals.length === 0) {
       hospitalList.innerHTML =
         '<div class="text-center p-4 text-gray-500">No hospitals found nearby.</div>';
       return;
@@ -864,21 +876,16 @@ async function fetchNearbyHospitals(lat, lng) {
       iconAnchor: [15, 15],
     });
 
-    data.features.forEach((place) => {
-      const props = place.properties;
-      const hospitalLat = props.lat;
-      const hospitalLng = props.lon;
-      const name = props.name || "Hospital";
-      const address = props.address_line2 || props.formatted;
+    data.hospitals.forEach((hospital) => {
+      const hospitalLat = hospital.lat;
+      const hospitalLng = hospital.lon;
+      const name = hospital.name;
+      const address = hospital.address;
+      const phone = hospital.phone;
 
       // Calculate distance
       const distMeters = map.distance([lat, lng], [hospitalLat, hospitalLng]);
       const distance = (distMeters / 1000).toFixed(1);
-
-      const phone =
-        props.contact && props.contact.phone
-          ? props.contact.phone
-          : "Not Available";
 
       // Add Marker
       const marker = L.marker([hospitalLat, hospitalLng], {

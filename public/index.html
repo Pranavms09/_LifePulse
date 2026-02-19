@@ -98,32 +98,33 @@
 
     <!-- Mobile Bottom Navigation -->
     <div id="mobileBottomNav"
-        class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-[5000] px-6 py-3 flex justify-between items-center pb-[env(safe-area-inset-bottom,16px)]">
+        class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-[5000] flex items-center pb-[env(safe-area-inset-bottom,16px)]"
+        style="padding-top: 10px; padding-bottom: max(10px, env(safe-area-inset-bottom));">
         <button onclick="showSection('home')"
-            class="flex flex-col items-center gap-1 text-gray-500 hover:text-purple-600 transition">
+            class="flex-1 flex flex-col items-center gap-1 text-gray-500 hover:text-purple-600 transition py-1">
             <i class="fas fa-home text-xl"></i>
             <span class="text-[10px] font-medium">Home</span>
         </button>
         <button onclick="showSection('medassist')"
-            class="flex flex-col items-center gap-1 text-gray-500 hover:text-purple-600 transition">
+            class="flex-1 flex flex-col items-center gap-1 text-gray-500 hover:text-purple-600 transition py-1">
             <i class="fas fa-hand-holding-medical text-xl"></i>
             <span class="text-[10px] font-medium">MedAssist</span>
         </button>
         <button onclick="showSection('ai-assistant')"
-            class="flex flex-col items-center gap-1 text-purple-600 transition">
+            class="flex-1 flex flex-col items-center gap-1 text-purple-600 transition py-1">
             <div
-                class="bg-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center -mt-8 shadow-lg border-4 border-white">
+                class="bg-purple-600 text-white w-14 h-14 rounded-full flex items-center justify-center -mt-8 shadow-xl border-4 border-white">
                 <i class="fas fa-robot text-xl"></i>
             </div>
             <span class="text-[10px] font-bold">AI</span>
         </button>
         <button onclick="showSection('emergency')"
-            class="flex flex-col items-center gap-1 text-gray-500 hover:text-red-600 transition">
+            class="flex-1 flex flex-col items-center gap-1 text-gray-500 hover:text-red-600 transition py-1">
             <i class="fas fa-ambulance text-xl"></i>
             <span class="text-[10px] font-medium">SOS</span>
         </button>
         <button onclick="showSection('family')"
-            class="flex flex-col items-center gap-1 text-gray-500 hover:text-purple-600 transition">
+            class="flex-1 flex flex-col items-center gap-1 text-gray-500 hover:text-purple-600 transition py-1">
             <i class="fas fa-users text-xl"></i>
             <span class="text-[10px] font-medium">Family</span>
         </button>
@@ -439,10 +440,10 @@
 
         <!-- EMERGENCY SECTION -->
         <section id="emergency" class="section hidden">
-            <div class="bg-red-600 text-white pt-4 pb-8">
+            <div class="bg-red-600 text-white py-16">
                 <div class="max-w-7xl mx-auto px-4 text-center">
-                    <h1 class="text-4xl font-bold mb-2"><i class="fas fa-ambulance mr-3"></i>Emergency Support</h1>
-                    <p class="text-red-100">24/7 Emergency Assistance • One-Touch SOS • Hospital Locator</p>
+                    <h1 class="text-4xl font-bold mb-3"><i class="fas fa-ambulance mr-3"></i>Emergency Support</h1>
+                    <p class="text-red-100 text-lg opacity-90">24/7 Emergency Assistance • One-Touch SOS • Hospital Locator</p>
                 </div>
             </div>
 
@@ -540,10 +541,10 @@
 
         <!-- DASHBOARD SECTION -->
         <section id="dashboard" class="section hidden">
-            <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white pt-4 pb-8">
+            <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-16">
                 <div class="max-w-7xl mx-auto px-4">
-                    <h1 class="text-3xl font-bold mb-2">Health Dashboard</h1>
-                    <p>Track your vital signs and health metrics</p>
+                    <h1 class="text-3xl font-bold mb-3">Health Dashboard</h1>
+                    <p class="text-purple-100 text-lg opacity-90">Track your vital signs and health metrics</p>
                 </div>
             </div>
 
@@ -665,10 +666,10 @@
 
         <!-- MEDICINE REMINDER SECTION -->
         <section id="medicine" class="section hidden">
-            <div class="bg-yellow-500 text-white pt-4 pb-8">
+            <div class="bg-yellow-500 text-white py-16">
                 <div class="max-w-7xl mx-auto px-4">
-                    <h1 class="text-3xl font-bold mb-2"><i class="fas fa-pills mr-3"></i>Medicine Reminder</h1>
-                    <p>Never miss a dose with smart medication tracking</p>
+                    <h1 class="text-3xl font-bold mb-3"><i class="fas fa-pills mr-3"></i>Medicine Reminder</h1>
+                    <p class="text-yellow-100 text-lg opacity-90">Schedule and track your daily medications</p>
                 </div>
             </div>
 
@@ -767,10 +768,10 @@
 
         <!-- DIET GENERATOR SECTION -->
         <section id="diet" class="section hidden">
-            <div class="bg-green-600 text-white pt-4 pb-8">
+            <div class="bg-green-600 text-white py-16">
                 <div class="max-w-7xl mx-auto px-4">
-                    <h1 class="text-3xl font-bold mb-2"><i class="fas fa-utensils mr-3"></i>AI Diet Generator</h1>
-                    <p>Personalized nutrition plans using local ingredients</p>
+                    <h1 class="text-3xl font-bold mb-3"><i class="fas fa-utensils mr-3"></i>Diet Generator</h1>
+                    <p class="text-green-100 text-lg opacity-90">AI-personalized nutrition plans based on your health</p>
                 </div>
             </div>
 
@@ -866,10 +867,10 @@
 
         <!-- DOCTOR CONNECT SECTION -->
         <section id="doctor-connect" class="section hidden">
-            <div class="bg-blue-600 text-white pt-4 pb-8">
+            <div class="bg-blue-600 text-white py-16">
                 <div class="max-w-7xl mx-auto px-4">
-                    <h1 class="text-3xl font-bold mb-2"><i class="fas fa-user-md mr-3"></i>Doctor Connect</h1>
-                    <p>Consult with verified doctors via video, audio, or chat</p>
+                    <h1 class="text-3xl font-bold mb-3"><i class="fas fa-user-md mr-3"></i>Doctor Connect</h1>
+                    <p class="text-blue-100 text-lg opacity-90">Consult with healthcare professionals remotely</p>
                 </div>
             </div>
 
@@ -993,12 +994,10 @@
         <!-- FAMILY DASHBOARD SECTION -->
         <section id="family" class="section hidden">
             <!-- Premium Header -->
-            <div class="relative overflow-hidden bg-pink-600 px-4 pt-4 pb-12 text-white">
-                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"
-                    style="pointer-events: none;"></div>
+            <div class="bg-pink-600 text-white py-16 relative overflow-hidden">
                 <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-pink-400 blur-3xl opacity-20"
                     style="pointer-events: none;"></div>
-                <div class="relative z-10 max-w-7xl mx-auto">
+                <div class="relative z-10 max-w-7xl mx-auto px-4">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div>
                             <h1 class="text-4xl font-extrabold tracking-tight mb-2">Family Health Center</h1>
@@ -1273,10 +1272,10 @@
 
         <!-- REPORT ANALYZER SECTION -->
         <section id="report-analyzer" class="section hidden">
-            <div class="bg-indigo-600 text-white pt-4 pb-8">
+            <div class="bg-indigo-600 text-white py-16">
                 <div class="max-w-7xl mx-auto px-4">
-                    <h1 class="text-3xl font-bold mb-2"><i class="fas fa-file-medical-alt mr-3"></i>Report Analyzer</h1>
-                    <p>Upload medical reports for AI-powered analysis</p>
+                    <h1 class="text-3xl font-bold mb-3"><i class="fas fa-file-medical-alt mr-3"></i>Report Analyzer</h1>
+                    <p class="text-indigo-100 text-lg opacity-90">Upload medical reports for AI-powered analysis</p>
                 </div>
             </div>
 
@@ -1772,7 +1771,7 @@
     <!-- MEDASSIST HUB SECTION -->
     <section id="medassist" class="section hidden">
       <div
-        class="bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 text-white pt-4 pb-16 relative overflow-hidden"
+        class="bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 text-white py-16 relative overflow-hidden"
       >
         <div
           class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"
@@ -1901,19 +1900,19 @@
 
     <!-- AI MEDICINE ANALYZER SECTION -->
     <section id="medicine-analyzer" class="section hidden">
-      <div class="bg-purple-600 text-white py-8 relative">
+      <div class="bg-purple-600 text-white py-16 relative">
         <button
           onclick="showSection('medassist')"
-          class="absolute left-4 top-8 w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center hover:bg-white/30 transition shadow-lg"
+          class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center hover:bg-white/30 transition shadow-lg"
           title="Back to MedAssist"
         >
-          <i class="fas fa-chevron-left text-white"></i>
+          <i class="fas fa-chevron-left text-white text-xl"></i>
         </button>
         <div class="max-w-7xl mx-auto px-4 text-center">
-          <h1 class="text-4xl font-bold mb-2">
+          <h1 class="text-4xl font-bold mb-3">
             <i class="fas fa-camera mr-3"></i>AI Medicine Analyzer
           </h1>
-          <p class="text-purple-100">
+          <p class="text-purple-100 text-lg opacity-90">
             Upload a clear photo of medicine strips or bottles for instant
             AI-powered information.
           </p>
@@ -2014,19 +2013,19 @@
 
     <!-- PHARMACY FINDER SECTION -->
     <section id="pharmacy-finder" class="section hidden">
-      <div class="bg-blue-600 text-white py-8 relative">
+      <div class="bg-blue-600 text-white py-16 relative">
         <button
           onclick="showSection('medassist')"
-          class="absolute left-4 top-8 w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center hover:bg-white/30 transition shadow-lg"
+          class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center hover:bg-white/30 transition shadow-lg"
           title="Back to MedAssist"
         >
-          <i class="fas fa-chevron-left text-white"></i>
+          <i class="fas fa-chevron-left text-white text-xl"></i>
         </button>
         <div class="max-w-7xl mx-auto px-4 text-center">
-          <h1 class="text-4xl font-bold mb-2">
+          <h1 class="text-4xl font-bold mb-3">
             <i class="fas fa-map-marker-alt mr-3"></i>Find Nearby Pharmacy
           </h1>
-          <p class="text-blue-100">
+          <p class="text-blue-100 text-lg opacity-90">
             Locate open medical stores and pharmacies in your vicinity.
           </p>
         </div>
