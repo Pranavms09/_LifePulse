@@ -15,7 +15,7 @@ body {
 }
 
 #mainContainer {
-  padding-top: 64px; /* Desktop */
+  padding-top: 0; /* Handled by body padding */
 }
 
 /* Mobile specific top margin for bezel clearance */

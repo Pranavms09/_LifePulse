@@ -7,6 +7,12 @@
 node_modules/
 package-lock.json
 
+# Native / Local Development (Exclude from Vercel/Git)
+android/
+server/
+capacitor.config.json
+.vercel/
+
 # Logs
 logs/
 *.log

@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">LifePulse</string>
-    <string name="title_activity_main">LifePulse</string>
-    <string name="package_name">com.lifepulse.app</string>
-    <string name="custom_url_scheme">com.lifepulse.app</string>
-</resources>
