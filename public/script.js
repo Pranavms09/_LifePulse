@@ -453,13 +453,21 @@ function triggerSOS() {
       },
       (error) => {
         console.error("SOS Geolocation error:", error);
+        let errorMsg = "Unavailable";
+        if (error.code === 1) errorMsg = "Permission Denied";
+        else if (error.code === 3) errorMsg = "Timeout";
+
         if (locationStatus) {
-          locationStatus.textContent = "Unavailable";
+          locationStatus.textContent = errorMsg;
           locationStatus.className = "text-red-500 font-bold";
         }
         renderSOSContacts(null, true);
       },
-      { timeout: 5000 },
+      {
+        timeout: 15000,
+        enableHighAccuracy: true,
+        maximumAge: 0
+      },
     );
   } else {
     if (locationStatus) {
@@ -491,12 +499,26 @@ function renderSOSContacts(locationLink, autoTrigger = false) {
   // Automate first contact notification if requested
   if (autoTrigger && contacts.length > 0) {
     const primary = contacts[0];
-    const message = `EMERGENCY! I need help. My current location is: ${locationLink || "Detecting..."}`;
+    const message = `EMERGENCY! I need help. My current location is: ${locationLink || "Unavailable (check GPS/permissions)"}`;
     const encodedMsg = encodeURIComponent(message);
     const waLink = `https://wa.me/${primary.phone.replace(/\D/g, "")}?text=${encodedMsg}`;
 
-    // Open WhatsApp automatically
-    window.open(waLink, "_blank");
+    // 1. Try Capacitor Background SMS (Silent/Truly Automatic)
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SMS) {
+      window.Capacitor.Plugins.SMS.send({
+        numbers: contacts.map(c => c.phone.replace(/\D/g, "")),
+        text: message
+      }).then(() => console.log("Background SMS sent")).catch(err => console.error(err));
+    } else {
+      // Fallback: Automated SMS App opening (One-click)
+      const smsLink = `sms:${primary.phone}?body=${encodedMsg}`;
+      window.location.href = smsLink;
+    }
+
+    // 2. Trigger WhatsApp (Always requires clicking 'Send' for security)
+    setTimeout(() => {
+      window.open(waLink, "_blank");
+    }, 1500);
   }
 
   container.innerHTML = contacts
