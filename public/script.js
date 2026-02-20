@@ -425,12 +425,105 @@ function startVoiceChat() {
 // Emergency Functions
 function triggerSOS() {
   document.getElementById("sosModal").classList.remove("hidden");
+  const container = document.getElementById("sosEmergencyContacts");
+  const locationStatus = document.getElementById("sosLocationStatus");
 
-  // Simulate emergency call
-  setTimeout(() => {
-    // In real app, this would trigger actual phone call and location sharing
-    console.log("Emergency triggered: Calling 108, sharing location");
-  }, 1000);
+  if (container)
+    container.innerHTML =
+      '<p class="text-xs text-center text-gray-400 py-2">Loading contacts...</p>';
+  if (locationStatus) {
+    locationStatus.textContent = "Detecting...";
+    locationStatus.className = "text-yellow-600 font-bold";
+  }
+
+  // Capture Location
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        const locationLink = `https://www.google.com/maps?q=${lat},${lng}`;
+
+        if (locationStatus) {
+          locationStatus.textContent = "Active";
+          locationStatus.className = "text-green-600 font-bold";
+        }
+
+        renderSOSContacts(locationLink, true); // Added true for auto-trigger
+      },
+      (error) => {
+        console.error("SOS Geolocation error:", error);
+        if (locationStatus) {
+          locationStatus.textContent = "Unavailable";
+          locationStatus.className = "text-red-500 font-bold";
+        }
+        renderSOSContacts(null, true);
+      },
+      { timeout: 5000 },
+    );
+  } else {
+    if (locationStatus) {
+      locationStatus.textContent = "Not Supported";
+      locationStatus.className = "text-red-500 font-bold";
+    }
+    renderSOSContacts(null, true);
+  }
+}
+
+function renderSOSContacts(locationLink, autoTrigger = false) {
+  const container = document.getElementById("sosEmergencyContacts");
+  const contacts = JSON.parse(localStorage.getItem("emergencyContacts") || "[]");
+
+  if (!container) return;
+
+  if (contacts.length === 0) {
+    container.innerHTML = `
+            <div class="text-center py-4 bg-gray-50 rounded-xl">
+                <p class="text-xs text-gray-500 mb-2">No emergency contacts found.</p>
+                <button onclick="closeSOS(); toggleProfile();" class="text-xs font-bold text-purple-600 hover:text-purple-700">
+                    <i class="fas fa-plus mr-1"></i>Add Contacts in Profile
+                </button>
+            </div>
+        `;
+    return;
+  }
+
+  // Automate first contact notification if requested
+  if (autoTrigger && contacts.length > 0) {
+    const primary = contacts[0];
+    const message = `EMERGENCY! I need help. My current location is: ${locationLink || "Detecting..."}`;
+    const encodedMsg = encodeURIComponent(message);
+    const waLink = `https://wa.me/${primary.phone.replace(/\D/g, "")}?text=${encodedMsg}`;
+
+    // Open WhatsApp automatically
+    window.open(waLink, "_blank");
+  }
+
+  container.innerHTML = contacts
+    .map((contact) => {
+      const message = `EMERGENCY! I need help. My current location is: ${locationLink || "Unavailable"}`;
+      const encodedMsg = encodeURIComponent(message);
+      const waLink = `https://wa.me/${contact.phone.replace(/\D/g, "")}?text=${encodedMsg}`;
+      const smsLink = `sms:${contact.phone}?body=${encodedMsg}`;
+
+      return `
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                <div class="flex-1">
+                    <p class="text-sm font-bold text-gray-800">${contact.name}</p>
+                    <p class="text-[10px] text-gray-500">${contact.phone}</p>
+                </div>
+                <div class="flex gap-2">
+                    <a href="${waLink}" target="_blank" class="w-9 h-9 bg-green-500 text-white rounded-lg flex items-center justify-center hover:bg-green-600 transition shadow-sm">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="${smsLink}" class="w-9 h-9 bg-blue-500 text-white rounded-lg flex items-center justify-center hover:bg-blue-600 transition shadow-sm">
+                        <i class="fas fa-sms"></i>
+                    </a>
+                </div>
+            </div>
+        `;
+    })
+    .join("");
 }
 
 function closeSOS() {
@@ -925,14 +1018,13 @@ async function fetchNearbyHospitals(lat, lng) {
                     <div class="text-xs text-gray-500 mb-1">${address}</div>
                     <div class="text-sm text-blue-600 font-medium"><i class="fas fa-route mr-1"></i>${distance} km</div>
                 </div>
-                ${
-                  phone !== "Not Available"
-                    ? `
+                ${phone !== "Not Available"
+          ? `
                 <a href="tel:${phone}" onclick="event.stopPropagation()" class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white hover:bg-green-600 shadow-md transform hover:scale-105 transition ml-2">
                     <i class="fas fa-phone"></i>
                 </a>`
-                    : ""
-                }
+          : ""
+        }
             `;
       hospitalList.appendChild(div);
     });
@@ -1010,7 +1102,7 @@ function checkMedicineReminders() {
       if ("speechSynthesis" in window) {
         const msg = new SpeechSynthesisUtterance(
           "Medicine reminder: Time to take your " +
-            card.querySelector("h4").textContent,
+          card.querySelector("h4").textContent,
         );
         window.speechSynthesis.speak(msg);
       }

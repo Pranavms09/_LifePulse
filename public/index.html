@@ -1673,19 +1673,31 @@
             </div>
             <h3 class="text-2xl font-bold mb-2 text-red-600">Emergency SOS Activated</h3>
             <p class="text-gray-600 mb-6">Calling 108... Notifying emergency contacts...</p>
-            <div class="space-y-3">
+            <div class="space-y-3 mb-6">
+                <!-- Status Row: 108 -->
                 <div class="flex items-center justify-between p-3 bg-gray-100 rounded-lg">
                     <span class="flex items-center"><i class="fas fa-phone-alt text-green-500 mr-2"></i>108
                         Ambulance</span>
                     <span class="text-green-600 font-bold">Connecting...</span>
                 </div>
+                <!-- Status Row: Location -->
                 <div class="flex items-center justify-between p-3 bg-gray-100 rounded-lg">
                     <span class="flex items-center"><i class="fas fa-map-marker-alt text-blue-500 mr-2"></i>Location
                         Shared</span>
-                    <span class="text-green-600 font-bold">Active</span>
+                    <span class="text-green-600 font-bold" id="sosLocationStatus">Detecting...</span>
                 </div>
             </div>
-            <button onclick="closeSOS()" class="mt-6 w-full py-3 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel
+
+            <!-- Emergency Contacts Notification Panel -->
+            <div class="text-left mb-6">
+                <h4 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3">Notify Family Members</h4>
+                <div id="sosEmergencyContacts" class="space-y-2">
+                    <!-- Dynamic contacts will be injected here -->
+                    <p class="text-xs text-center text-gray-400 py-2">Loading contacts...</p>
+                </div>
+            </div>
+
+            <button onclick="closeSOS()" class="w-full py-3 bg-gray-200 rounded-lg hover:bg-gray-300 font-bold text-gray-700">Cancel
                 SOS</button>
         </div>
     </div>
