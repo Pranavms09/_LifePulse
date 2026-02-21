@@ -137,7 +137,23 @@ module.exports = async function handler(req, res) {
     // Inject language instruction into the actual message
     const fullMessage = langInstruction + message;
 
-    const result = await chat.sendMessage(fullMessage);
+    // Auto-retry once on rate limit (429) with a 2s delay
+    let result;
+    try {
+      result = await chat.sendMessage(fullMessage);
+    } catch (retryError) {
+      const isRateLimit =
+        retryError.message?.includes("429") ||
+        retryError.message?.includes("quota") ||
+        retryError.message?.includes("RESOURCE_EXHAUSTED") ||
+        retryError.status === 429;
+      if (isRateLimit) {
+        await new Promise((r) => setTimeout(r, 2000));
+        result = await chat.sendMessage(fullMessage); // retry once
+      } else {
+        throw retryError;
+      }
+    }
     const response = await result.response;
     const text = response.text();
 
@@ -160,7 +176,12 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    if (error.message?.includes("quota") || error.message?.includes("429")) {
+    if (
+      error.message?.includes("quota") ||
+      error.message?.includes("429") ||
+      error.message?.includes("RESOURCE_EXHAUSTED") ||
+      error.status === 429
+    ) {
       return res
         .status(429)
         .json({ error: "Service is busy. Please try again in a moment." });
