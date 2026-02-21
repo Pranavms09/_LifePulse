@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initApp();
   loadProfileData();
   loadFamilyMembers();
+  loadEmergencyContacts();
   animateStats();
   initCharts();
   checkConnectivity();
@@ -1629,7 +1630,7 @@ function showNotification(message, type = "info") {
 }
 
 // Profile Functions
-let emergencyContactIdCounter = 3; // Start from 3 since we have 2 default contacts
+let emergencyContactIdCounter = 1; // Start from 1 for new users
 
 function toggleProfile() {
   const panel = document.getElementById("profilePanel");
@@ -1793,6 +1794,8 @@ function saveContactFromModal() {
     // Adding new contact
     const contactId = emergencyContactIdCounter++;
     const contactsList = document.getElementById("emergencyContactsList");
+    const noContactsText = document.getElementById("noContactsText");
+    if (noContactsText) noContactsText.classList.add("hidden");
 
     const colors = [
       "bg-red-50",
@@ -1854,6 +1857,18 @@ function deleteEmergencyContact(contactId) {
       if (contactDiv) {
         contactDiv.remove();
         saveEmergencyContacts();
+
+        // Show placeholder if no contacts left
+        const list = document.getElementById("emergencyContactsList");
+        const noContactsText = document.getElementById("noContactsText");
+        if (
+          list &&
+          noContactsText &&
+          list.querySelectorAll(".emergency-contact").length === 0
+        ) {
+          noContactsText.classList.remove("hidden");
+        }
+
         showNotification("Contact deleted!", "success");
       }
     },
@@ -1897,42 +1912,133 @@ function saveEmergencyContacts() {
   localStorage.setItem("emergencyContacts", JSON.stringify(contacts));
 }
 
+function loadEmergencyContacts() {
+  const contacts = JSON.parse(
+    localStorage.getItem("emergencyContacts") || "[]",
+  );
+  const list = document.getElementById("emergencyContactsList");
+  const noContactsText = document.getElementById("noContactsText");
+  if (!list) return;
+
+  // Clear previous entries except placeholder
+  const existingContacts = list.querySelectorAll(".emergency-contact");
+  existingContacts.forEach((c) => c.remove());
+
+  if (contacts.length > 0) {
+    if (noContactsText) noContactsText.classList.add("hidden");
+    contacts.forEach((contact) => {
+      renderEmergencyContact(contact);
+      // Update ID counter
+      const idNum = parseInt(contact.id);
+      if (idNum >= emergencyContactIdCounter) {
+        emergencyContactIdCounter = idNum + 1;
+      }
+    });
+  } else {
+    if (noContactsText) noContactsText.classList.remove("hidden");
+  }
+}
+
+function renderEmergencyContact(contact) {
+  const list = document.getElementById("emergencyContactsList");
+  if (!list) return;
+
+  const colors = [
+    "bg-red-50",
+    "bg-blue-50",
+    "bg-green-50",
+    "bg-yellow-50",
+    "bg-purple-50",
+  ];
+  const color = colors[Math.floor(Math.random() * colors.length)];
+
+  const div = document.createElement("div");
+  div.className = `flex items-center justify-between p-3 ${color} rounded-lg emergency-contact`;
+  div.setAttribute("data-id", contact.id);
+  div.innerHTML = `
+            <div class="flex-1">
+                <p class="font-medium contact-name">${contact.name}</p>
+                <p class="text-sm text-gray-600 contact-phone">${contact.phone}</p>
+            </div>
+            <button onclick="editEmergencyContact(${contact.id})" class="text-gray-500 hover:text-purple-600 mr-2">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button onclick="deleteEmergencyContact(${contact.id})" class="text-gray-500 hover:text-red-600">
+                <i class="fas fa-trash"></i>
+            </button>
+        `;
+  list.appendChild(div);
+}
+
 function loadProfileData() {
   // Load personal data
   const profileData = localStorage.getItem("profileData");
   if (profileData) {
     const data = JSON.parse(profileData);
-    document.getElementById("viewName").textContent = data.name;
-    document.getElementById("editName").value = data.name;
-    document.getElementById("viewAge").textContent = data.age;
-    document.getElementById("editAge").value = data.age;
-    document.getElementById("viewGender").textContent = data.gender;
-    document.getElementById("editGender").value = data.gender;
-    document.getElementById("viewBloodGroup").textContent = data.bloodGroup;
-    document.getElementById("editBloodGroup").value = data.bloodGroup;
-    document.getElementById("viewPhone").textContent = data.phone;
-    document.getElementById("editPhone").value = data.phone;
-    document.getElementById("viewEmail").textContent = data.email;
-    document.getElementById("editEmail").value = data.email;
-    document.getElementById("profileNameDisplay").textContent = data.name;
-    document.getElementById("profileAgeGenderDisplay").textContent =
-      `${data.age} years • ${data.gender}`;
+    if (data.name && document.getElementById("viewName"))
+      document.getElementById("viewName").textContent = data.name;
+    if (data.name && document.getElementById("editName"))
+      document.getElementById("editName").value = data.name;
+    if (data.age && document.getElementById("viewAge"))
+      document.getElementById("viewAge").textContent = data.age;
+    if (data.age && document.getElementById("editAge"))
+      document.getElementById("editAge").value = data.age;
+    if (data.gender && document.getElementById("viewGender"))
+      document.getElementById("viewGender").textContent = data.gender;
+    if (data.gender && document.getElementById("editGender"))
+      document.getElementById("editGender").value = data.gender;
+    if (data.bloodGroup && document.getElementById("viewBloodGroup"))
+      document.getElementById("viewBloodGroup").textContent = data.bloodGroup;
+    if (data.bloodGroup && document.getElementById("editBloodGroup"))
+      document.getElementById("editBloodGroup").value = data.bloodGroup;
+    if (data.phone && document.getElementById("viewPhone"))
+      document.getElementById("viewPhone").textContent = data.phone;
+    if (data.phone && document.getElementById("editPhone"))
+      document.getElementById("editPhone").value = data.phone;
+    if (data.email && document.getElementById("viewEmail"))
+      document.getElementById("viewEmail").textContent = data.email;
+    if (data.email && document.getElementById("editEmail"))
+      document.getElementById("editEmail").value = data.email;
+    if (data.name && document.getElementById("profileNameDisplay"))
+      document.getElementById("profileNameDisplay").textContent = data.name;
+    if (
+      data.age &&
+      data.gender &&
+      document.getElementById("profileAgeGenderDisplay")
+    ) {
+      document.getElementById("profileAgeGenderDisplay").textContent =
+        `${data.age} years • ${data.gender}`;
+    }
   }
 
   // Load medical data
   const medicalData = localStorage.getItem("medicalData");
   if (medicalData) {
     const data = JSON.parse(medicalData);
-    document.getElementById("viewHeightWeight").textContent =
-      `${data.height} cm • ${data.weight} kg`;
-    document.getElementById("editHeight").value = data.height;
-    document.getElementById("editWeight").value = data.weight;
-    document.getElementById("viewConditions").textContent = data.conditions;
-    document.getElementById("editConditions").value = data.conditions;
-    document.getElementById("viewAllergies").textContent = data.allergies;
-    document.getElementById("editAllergies").value = data.allergies;
-    document.getElementById("viewMedications").textContent = data.medications;
-    document.getElementById("editMedications").value = data.medications;
+    if (
+      data.height &&
+      data.weight &&
+      document.getElementById("viewHeightWeight")
+    ) {
+      document.getElementById("viewHeightWeight").textContent =
+        `${data.height} cm • ${data.weight} kg`;
+    }
+    if (data.height && document.getElementById("editHeight"))
+      document.getElementById("editHeight").value = data.height;
+    if (data.weight && document.getElementById("editWeight"))
+      document.getElementById("editWeight").value = data.weight;
+    if (data.conditions && document.getElementById("viewConditions"))
+      document.getElementById("viewConditions").textContent = data.conditions;
+    if (data.conditions && document.getElementById("editConditions"))
+      document.getElementById("editConditions").value = data.conditions;
+    if (data.allergies && document.getElementById("viewAllergies"))
+      document.getElementById("viewAllergies").textContent = data.allergies;
+    if (data.allergies && document.getElementById("editAllergies"))
+      document.getElementById("editAllergies").value = data.allergies;
+    if (data.medications && document.getElementById("viewMedications"))
+      document.getElementById("viewMedications").textContent = data.medications;
+    if (data.medications && document.getElementById("editMedications"))
+      document.getElementById("editMedications").value = data.medications;
   }
 }
 
