@@ -534,100 +534,163 @@ function getLocalizedWelcome(lang) {
   const welcomes = {
     en: "Namaste! I am Dr. Sanjeevani. How can I assist you with your health today?",
     hi: "नमस्ते! मैं डॉ. संजीवनी हूँ। आज मैं आपके स्वास्थ्य में कैसे सुधार कर सकती हूँ?",
-    ta: "வணக்கம்! நான் டாக்டர் சஞ்சீவனி. இன்று உங்கள் ஆரோக்கியத்திற்கு நான் எப்படி உதவ முடியும்?",
+    ta: "வணக்கம்! நான் டாக்டர் சஞ்சีவனி. இன்று உங்கள் ஆரோக்கியத்திற்கு நான் எப்படி உதவ முடியும்?",
     te: "నమస్తే! నేను డాక్టర్ సంజీవని. ఈరోజు మీ ఆరోగ్య విషయంలో నేను మీకు ఎలా సహాయపడగలను?",
     bn: "নমস্কার! আমি ডক্টর সঞ্জীবনী। আজ আমি আপনার স্বাস্থ্যের জন্য কীভাবে সাহায্য করতে পারি?",
-    mr: "नमस्ते! मी डॉ. संजीवनी आहे. आज मी तुमच्या आरोग्यासाठी कशी मदत करू शकते?",
+    mr: "नमस्ते! मी डॉ. संजीवनी आहे. आज मी તમારા आरोग्यासाठी कशी मदत करू शकते?",
+    gu: "નમસ્તે! હું ડૉ. સંજીવની છું. આજે હું તમારા સ્વાસ્થ્ય માટે તમને કેવી રીતે મદદ કરી શકું?",
+    kn: "ನಮಸ್ತೆ! ನಾನು ಡಾ. ಸಂಜೀವನಿ. ಇಂದು ನಿಮ್ಮ ಆರೋಗ್ಯಕ್ಕೆ ನಾನು ಹೇಗೆ ಸಹಾಯ ಮಾಡಬಲ್ಲೆ?",
+    ml: "നമസ്കാരം! ഞാൻ ഡോ. സഞ്ജീവനി. ഇന്ന് നിങ്ങളുടെ ആരോഗ്യത്തിനായി എനിക്ക് എങ്ങനെ സഹായിക്കാനാകും?",
+    pa: "ਨਮਸਤੇ! ਮੈਂ ਡਾ. ਸੰਜੀਵਨੀ ਹਾਂ। ਅੱਜ ਮੈਂ ਤੁਹਾਡੀ ਸਿਹਤ ਵਿੱਚ ਕਿਵੇਂ ਮਦਦ ਕਰ ਸਕਦੀ ਹਾਂ?",
+    or: "ନମସ୍କାର! ମୁଁ ଡଃ ସଞ୍ଜୀବନୀ। ଆଜି ମୁଁ ଆପଣଙ୍କ ସ୍ୱାସ୍ଥ୍ୟ ପାଇଁ କିପରି ସାହାଯ୍ୟ କରିପାରିବି?",
   };
   return welcomes[lang] || welcomes["en"];
 }
 
+// Utility to detect Hindi characters
+function isHindi(text) {
+  const hindiPattern = /[\u0900-\u097F]/;
+  return hindiPattern.test(text);
+}
+
 // --- Integrated Voice Assistant (Bilingual: Hindi/English) ---
-let recognitionInstance = null;
+let recognition = null;
 let isVoiceActive = false;
+finalTranscript = "";
 
 function initVoiceAssistant() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) return;
 
-  recognitionInstance = new SpeechRecognition();
-  recognitionInstance.continuous = false;
-  recognitionInstance.interimResults = true; // Real-time text sync
+  recognition = new SpeechRecognition();
 
-  recognitionInstance.onstart = () => {
+  // Map our language codes to recognition locales
+  const langMap = {
+    en: "en-IN",
+    hi: "hi-IN",
+    ta: "ta-IN",
+    te: "te-IN",
+    bn: "bn-IN",
+    mr: "mr-IN",
+    gu: "gu-IN",
+    kn: "kn-IN",
+    ml: "ml-IN",
+    pa: "pa-IN",
+    or: "or-IN",
+  };
+
+  recognition.lang = langMap[aiLanguage] || "en-IN";
+  recognition.interimResults = true;
+  recognition.continuous = true;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = () => {
     isVoiceActive = true;
+    isIntentionalStop = false;
     const voiceBtn = document.getElementById("voice-btn");
     const statusInd = document.getElementById("voice-status-indicator");
     if (voiceBtn) voiceBtn.classList.add("voice-listening");
     if (statusInd) statusInd.classList.remove("hidden");
+    console.log("Speech recognition started");
   };
 
-  recognitionInstance.onresult = (event) => {
+  recognition.onresult = (event) => {
     const inputField = document.getElementById("ai-prompt-input");
-    let interimTranscript = "";
-    let finalTranscript = "";
+    if (!inputField) return;
 
-    for (let i = event.resultIndex; i < event.results.length; ++i) {
+    let interimTranscript = "";
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const transcript = event.results[i][0].transcript;
       if (event.results[i].isFinal) {
-        finalTranscript += event.results[i][0].transcript;
+        finalTranscript += transcript + " ";
       } else {
-        interimTranscript += event.results[i][0].transcript;
+        interimTranscript += transcript;
       }
     }
 
-    if (inputField) {
-      // Live text sync
-      inputField.value = finalTranscript || interimTranscript;
-    }
-
-    if (finalTranscript) {
-      console.log("Final Transcript:", finalTranscript);
-      // Delay slightly before auto-sending to ensure UI reflects the final text
-      setTimeout(() => {
-        if (isVoiceActive) {
-          stopVoiceAssistant();
-          handleAiRequest();
-        }
-      }, 500);
-    }
+    inputField.value = finalTranscript + interimTranscript;
+    inputField.scrollTop = inputField.scrollHeight;
   };
 
-  recognitionInstance.onerror = (event) => {
+  recognition.onerror = (event) => {
     console.error("Voice Error:", event.error);
+    if (event.error === "no-speech" || event.error === "aborted") {
+      return; // Let onend handle the restart if not intentional
+    }
     if (event.error === "not-allowed") {
-      showNotification("Voice input not supported on this device. Please type.", "error");
+      showNotification("Microphone access denied. Please enable it in browser settings.", "error");
+    } else {
+      showNotification(`Voice Error: ${event.error}`, "error");
     }
     stopVoiceAssistant();
   };
 
-  recognitionInstance.onend = () => {
-    stopVoiceAssistant();
+  recognition.onend = () => {
+    if (!isIntentionalStop && isVoiceActive) {
+      console.log("Auto-restarting speech recognition...");
+      try {
+        recognition.start();
+      } catch (e) {
+        console.error("Auto-restart failed:", e);
+        stopVoiceAssistant();
+      }
+    } else {
+      stopVoiceAssistant();
+    }
   };
 }
 
 function toggleVoiceInput() {
-  if (!recognitionInstance) initVoiceAssistant();
-  if (!recognitionInstance) {
-    showNotification("Voice input not supported on this device. Please type.", "error");
+  if (!recognition) initVoiceAssistant();
+  if (!recognition) {
+    showNotification("Voice input not supported on this browser.", "error");
     return;
   }
 
   if (isVoiceActive) {
+    isIntentionalStop = true;
     stopVoiceAssistant();
+    // Auto-send if there's text
+    const input = document.getElementById("ai-prompt-input");
+    if (input && input.value.trim().length > 0) {
+      handleAiRequest();
+    }
   } else {
-    // Set language based on active choice (default to Hindi if not set)
-    recognitionInstance.lang = (aiLanguage === "hi" || !aiLanguage) ? "hi-IN" : "en-US";
+    finalTranscript = "";
+    const input = document.getElementById("ai-prompt-input");
+    if (input) input.value = "";
+
+    // Update language settings before starting
+    const langMap = {
+      en: "en-IN",
+      hi: "hi-IN",
+      ta: "ta-IN",
+      te: "te-IN",
+      bn: "bn-IN",
+      mr: "mr-IN",
+      gu: "gu-IN",
+      kn: "kn-IN",
+      ml: "ml-IN",
+      pa: "pa-IN",
+      or: "or-IN",
+    };
+    recognition.lang = langMap[aiLanguage] || "en-IN";
+
     try {
-      recognitionInstance.start();
+      recognition.start();
     } catch (e) {
-      console.error("Recognition Start Error:", e);
+      console.error("Failed to start voice:", e);
+      // If it says already started, just sync UI
+      if (e.name === "InvalidStateError") {
+        isVoiceActive = true;
+      }
     }
   }
 }
 
 function stopVoiceAssistant() {
-  if (recognitionInstance && isVoiceActive) {
-    recognitionInstance.stop();
+  if (recognition && isVoiceActive) {
+    recognition.stop();
   }
   isVoiceActive = false;
   const voiceBtn = document.getElementById("voice-btn");
@@ -635,6 +698,7 @@ function stopVoiceAssistant() {
   if (voiceBtn) voiceBtn.classList.remove("voice-listening");
   if (statusInd) statusInd.classList.add("hidden");
 }
+
 
 
 function speakResponse(element) {
@@ -661,12 +725,17 @@ function speakResponse(element) {
 
     // Map our language codes to speech synthesis locales
     const langMap = {
-      en: "en-IN",
+      en: "en-GB", // Female voice common in GB locale
       hi: "hi-IN",
       ta: "ta-IN",
       te: "te-IN",
       bn: "bn-IN",
       mr: "mr-IN",
+      gu: "gu-IN",
+      kn: "kn-IN",
+      ml: "ml-IN",
+      pa: "pa-IN",
+      or: "or-IN",
     };
 
     // Auto-detect language if not explicitly set by aiLanguage
@@ -715,7 +784,14 @@ function speakResponse(element) {
 
     if (preferredVoice) {
       utterance.voice = preferredVoice;
+    } else if (utterance.lang === "en-GB") {
+      // Fallback for English to US female if GB not found
+      const usFemale = voices.find(v => v.lang.startsWith("en-US") && femaleKeywords.some(kw => v.name.toLowerCase().includes(kw)));
+      if (usFemale) utterance.voice = usFemale;
     }
+
+    utterance.pitch = 1.1; // Slightly higher pitch for a more pleasant female voice
+    utterance.rate = 0.95; // Slightly slower for clarity
 
     window.speechSynthesis.speak(utterance);
   };
