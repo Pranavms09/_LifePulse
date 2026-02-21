@@ -40,8 +40,8 @@ module.exports = async function handler(req, res) {
 
     // Initialize Gemini API
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    // Using gemini-2.0-flash - same model as the working chat feature
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    // Using gemini-2.5-flash - same model as the working chat feature
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `
             Analyze this medicine image (strip, bottle, or packet).
