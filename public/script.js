@@ -201,8 +201,72 @@ function showSection(sectionId, updateHistory = true) {
     if (sectionId === "dashboard") {
       updateDashboardCharts();
     }
+
+    // Initial highlight
+    setActiveNav();
   }
 }
+
+/**
+ * Route-aware navigation highlighting.
+ * Matches window.location.pathname and hash to the correct nav item.
+ */
+function setActiveNav() {
+  const pathname = window.location.pathname;
+  const hash = window.location.hash;
+  const currentPath = pathname + hash;
+
+  // Remove active-nav from all menu links
+  document.querySelectorAll(".nav-link").forEach((link) => {
+    link.classList.remove("active-nav");
+  });
+
+  // Highlight logic
+  document.querySelectorAll(".nav-link").forEach((link) => {
+    const navTarget = link.getAttribute("data-nav");
+    const href = link.getAttribute("href");
+
+    // Check if link matches via data-nav (for SPA sections) or href (for direct paths)
+    const matchesHash = hash === "#" + navTarget;
+    const matchesPath = pathname.endsWith("/" + navTarget + ".html") ||
+      pathname.endsWith("/" + navTarget);
+
+    // Home special case: matches root /, /index.html, or #home
+    const isHome = navTarget === "home";
+    const isRoot = pathname === "/" || pathname.endsWith("/index.html");
+    const matchesHome = isHome && (isRoot || matchesHash);
+
+    if (matchesHash || matchesPath || matchesHome) {
+      link.classList.add("active-nav");
+    }
+  });
+}
+
+// Override History API to sync nav highlights
+const originalPushState = history.pushState;
+history.pushState = function () {
+  originalPushState.apply(this, arguments);
+  setActiveNav();
+};
+
+const originalReplaceState = history.replaceState;
+history.replaceState = function () {
+  originalReplaceState.apply(this, arguments);
+  setActiveNav();
+};
+
+// Global Listeners
+window.addEventListener("popstate", setActiveNav);
+document.addEventListener("DOMContentLoaded", () => {
+  setActiveNav();
+
+  // Attach delay-triggered highlight to all nav links (for manual navigations)
+  document.querySelectorAll(".nav-link").forEach((link) => {
+    link.addEventListener("click", () => {
+      setTimeout(setActiveNav, 50);
+    });
+  });
+});
 
 // Handle Capacitor Back Button (Mobile)
 document.addEventListener("DOMContentLoaded", () => {
@@ -1355,14 +1419,13 @@ async function fetchNearbyHospitals(lat, lng) {
                     <div class="text-xs text-gray-500 mb-1">${address}</div>
                     <div class="text-sm text-blue-600 font-medium"><i class="fas fa-route mr-1"></i>${distance} km</div>
                 </div>
-                ${
-                  phone !== "Not Available"
-                    ? `
+                ${phone !== "Not Available"
+          ? `
                 <a href="tel:${phone}" onclick="event.stopPropagation()" class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white hover:bg-green-600 shadow-md transform hover:scale-105 transition ml-2">
                     <i class="fas fa-phone"></i>
                 </a>`
-                    : ""
-                }
+          : ""
+        }
             `;
       hospitalList.appendChild(div);
     });

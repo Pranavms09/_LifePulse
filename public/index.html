@@ -205,7 +205,8 @@
     <div id="auth-gate" class="auth-gate hidden">
         <div class="auth-card relative">
             <!-- Close Button -->
-            <button onclick="hideAuthGate()" class="absolute top-6 right-6 w-10 h-10 bg-gray-50 text-gray-400 hover:text-gray-600 rounded-full flex items-center justify-center transition hover:bg-gray-100">
+            <button onclick="hideAuthGate()"
+                class="absolute top-6 right-6 w-10 h-10 bg-gray-50 text-gray-400 hover:text-gray-600 rounded-full flex items-center justify-center transition hover:bg-gray-100">
                 <i class="fas fa-times text-xl"></i>
             </button>
             <div class="brand-icon">
@@ -344,24 +345,24 @@
                 </div>
 
                 <!-- Desktop Navigation -->
-                <div class="hidden md:flex items-center space-x-8">
-                    <button onclick="showSection('home')"
-                        class="nav-btn text-gray-700 hover:text-purple-600 font-medium transition">Home</button>
-                    <button onclick="showSection('dashboard')"
-                        class="nav-btn text-gray-700 hover:text-purple-600 font-medium transition">Dashboard</button>
-                    <button onclick="showSection('ai-assistant')"
-                        class="nav-btn text-gray-700 hover:text-purple-600 font-medium transition">Sanjeevani
+                <div class="hidden md:flex items-center space-x-8" id="desktopNav">
+                    <button onclick="showSection('home')" data-nav="home"
+                        class="nav-btn nav-link text-gray-700 hover:text-purple-600 font-medium transition">Home</button>
+                    <button onclick="showSection('dashboard')" data-nav="dashboard"
+                        class="nav-btn nav-link text-gray-700 hover:text-purple-600 font-medium transition">Dashboard</button>
+                    <button onclick="showSection('ai-assistant')" data-nav="ai-assistant"
+                        class="nav-btn nav-link text-gray-700 hover:text-purple-600 font-medium transition">Sanjeevani
                         AI</button>
-                    <button onclick="showSection('emergency')"
-                        class="nav-btn text-red-600 hover:text-red-700 font-medium transition">
+                    <button onclick="showSection('emergency')" data-nav="emergency"
+                        class="nav-btn nav-link text-red-600 hover:text-red-700 font-medium transition">
                         <i class="fas fa-ambulance mr-1"></i>Emergency
                     </button>
-                    <button onclick="showSection('medassist')"
-                        class="nav-btn text-gray-700 hover:text-purple-600 font-medium transition">
+                    <button onclick="showSection('medassist')" data-nav="medassist"
+                        class="nav-btn nav-link text-gray-700 hover:text-purple-600 font-medium transition">
                         <i class="fas fa-hand-holding-medical mr-1"></i>MedAssist
                     </button>
-                    <button onclick="showSection('family')"
-                        class="nav-btn text-gray-700 hover:text-purple-600 font-medium transition">Family</button>
+                    <button onclick="showSection('family')" data-nav="family"
+                        class="nav-btn nav-link text-gray-700 hover:text-purple-600 font-medium transition">Family</button>
                 </div>
 
                 <!-- Profile & Back Button -->
@@ -385,31 +386,31 @@
     <div id="mobileBottomNav"
         class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-[5000] flex items-center pb-[env(safe-area-inset-bottom,16px)]"
         style="padding-top: 10px; padding-bottom: max(10px, env(safe-area-inset-bottom));">
-        <button onclick="showSection('home')"
-            class="flex-1 flex flex-col items-center gap-1 text-gray-500 hover:text-purple-600 transition py-1">
+        <button onclick="showSection('home')" data-nav="home"
+            class="nav-link flex-1 flex flex-col items-center gap-1 text-gray-500 hover:text-purple-600 transition py-1">
             <i class="fas fa-home text-xl"></i>
             <span class="text-[10px] font-medium">Home</span>
         </button>
-        <button onclick="showSection('medassist')"
-            class="flex-1 flex flex-col items-center gap-1 text-gray-500 hover:text-purple-600 transition py-1">
+        <button onclick="showSection('medassist')" data-nav="medassist"
+            class="nav-link flex-1 flex flex-col items-center gap-1 text-gray-500 hover:text-purple-600 transition py-1">
             <i class="fas fa-hand-holding-medical text-xl"></i>
             <span class="text-[10px] font-medium">MedAssist</span>
         </button>
-        <button onclick="showSection('ai-assistant')"
-            class="flex-1 flex flex-col items-center gap-1 text-purple-600 transition py-1">
+        <button onclick="showSection('ai-assistant')" data-nav="ai-assistant"
+            class="nav-link flex-1 flex flex-col items-center gap-1 text-purple-600 transition py-1">
             <div
                 class="bg-purple-600 text-white w-14 h-14 rounded-full flex items-center justify-center -mt-8 shadow-xl border-4 border-white">
                 <i class="fas fa-robot text-xl"></i>
             </div>
             <span class="text-[10px] font-bold">AI</span>
         </button>
-        <button onclick="showSection('emergency')"
-            class="flex-1 flex flex-col items-center gap-1 text-gray-500 hover:text-red-600 transition py-1">
+        <button onclick="showSection('emergency')" data-nav="emergency"
+            class="nav-link flex-1 flex flex-col items-center gap-1 text-gray-500 hover:text-red-600 transition py-1">
             <i class="fas fa-ambulance text-xl"></i>
             <span class="text-[10px] font-medium">SOS</span>
         </button>
-        <button onclick="showSection('family')"
-            class="flex-1 flex flex-col items-center gap-1 text-gray-500 hover:text-purple-600 transition py-1">
+        <button onclick="showSection('family')" data-nav="family"
+            class="nav-link flex-1 flex flex-col items-center gap-1 text-gray-500 hover:text-purple-600 transition py-1">
             <i class="fas fa-users text-xl"></i>
             <span class="text-[10px] font-medium">Family</span>
         </button>
@@ -608,26 +609,31 @@
 
 
         <!-- COMPLETE PROFILE SECTION -->
-        <section id="complete-profile" class="section hidden min-h-[calc(100dvh-64px)] flex items-center justify-center p-4 bg-gray-50">
+        <section id="complete-profile"
+            class="section hidden min-h-[calc(100dvh-64px)] flex items-center justify-center p-4 bg-gray-50">
             <div class="bg-white rounded-[2.5rem] p-8 max-w-lg w-full shadow-2xl animate-card-entry my-auto">
                 <div class="text-center mb-8">
                     <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                         <i class="fas fa-user-edit text-3xl text-purple-600"></i>
                     </div>
                     <h2 class="text-3xl font-black text-gray-800">Complete Your Profile</h2>
-                    <p class="text-gray-500 mt-2">Let's get to know you better for a personalized healthcare experience.</p>
+                    <p class="text-gray-500 mt-2">Let's get to know you better for a personalized healthcare experience.
+                    </p>
                 </div>
 
-                <form id="completeProfileForm" onsubmit="event.preventDefault(); saveProfileCompletion();" class="space-y-4">
+                <form id="completeProfileForm" onsubmit="event.preventDefault(); saveProfileCompletion();"
+                    class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Full Name</label>
+                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Full
+                                Name</label>
                             <input type="text" id="cp-name" required
                                 class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-purple-500 focus:outline-none font-medium"
                                 placeholder="Your Name">
                         </div>
                         <div>
-                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Email Address</label>
+                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Email
+                                Address</label>
                             <input type="email" id="cp-email" disabled
                                 class="w-full px-4 py-3 rounded-2xl bg-gray-100 border border-gray-100 text-gray-500 font-medium cursor-not-allowed">
                         </div>
@@ -635,13 +641,15 @@
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Age</label>
+                            <label
+                                class="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Age</label>
                             <input type="number" id="cp-age" required min="1" max="120"
                                 class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-purple-500 focus:outline-none font-medium"
                                 placeholder="e.g. 25">
                         </div>
                         <div>
-                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Gender</label>
+                            <label
+                                class="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Gender</label>
                             <select id="cp-gender" required
                                 class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-purple-500 focus:outline-none font-medium">
                                 <option value="" disabled selected>Select</option>
@@ -654,7 +662,8 @@
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Blood Group</label>
+                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Blood
+                                Group</label>
                             <select id="cp-blood-group" required
                                 class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-purple-500 focus:outline-none font-medium">
                                 <option value="" disabled selected>Select</option>
@@ -669,9 +678,11 @@
                             </select>
                         </div>
                         <div class="flex flex-col">
-                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Mobile Number</label>
+                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Mobile
+                                Number</label>
                             <div class="relative">
-                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">+91</span>
+                                <span
+                                    class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">+91</span>
                                 <input type="tel" id="cp-mobile" required pattern="[0-9]{10}"
                                     class="w-full pl-12 pr-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-purple-500 focus:outline-none font-medium"
                                     placeholder="9876543210">
@@ -681,13 +692,15 @@
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Height (cm)</label>
+                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Height
+                                (cm)</label>
                             <input type="number" id="cp-height" required min="50" max="250"
                                 class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-purple-500 focus:outline-none font-medium"
                                 placeholder="e.g. 170">
                         </div>
                         <div>
-                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Weight (kg)</label>
+                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Weight
+                                (kg)</label>
                             <input type="number" id="cp-weight" required min="2" max="300"
                                 class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-purple-500 focus:outline-none font-medium"
                                 placeholder="e.g. 65">
@@ -2017,7 +2030,8 @@
                         <h2 class="text-2xl font-bold">My Profile</h2>
                     </div>
                     <div class="text-center">
-                        <div class="w-24 h-24 bg-white rounded-full mx-auto mb-3 flex items-center justify-center relative">
+                        <div
+                            class="w-24 h-24 bg-white rounded-full mx-auto mb-3 flex items-center justify-center relative">
                             <i class="fas fa-user text-4xl text-purple-600" id="profileIcon"></i>
                             <img id="profileImage" class="hidden w-full h-full rounded-full object-cover" alt="Profile">
                             <button onclick="changeProfilePicture()"
@@ -2032,586 +2046,592 @@
 
                 <div class="p-6 space-y-6">
                     <!-- Personal Information -->
-                <div class="bg-white rounded-xl border-2 border-gray-100 p-4">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-lg flex items-center">
-                            <i class="fas fa-user-circle text-purple-600 mr-2"></i>
-                            Personal Information
-                        </h3>
-                        <button onclick="toggleEditMode('personal')" class="text-purple-600 hover:text-purple-700">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                    </div>
-
-                    <div id="personalView" class="space-y-3">
-                        <div>
-                            <label class="text-xs text-gray-500">Full Name</label>
-                            <p class="font-medium" id="viewName">Add data</p>
+                    <div class="bg-white rounded-xl border-2 border-gray-100 p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-lg flex items-center">
+                                <i class="fas fa-user-circle text-purple-600 mr-2"></i>
+                                Personal Information
+                            </h3>
+                            <button onclick="toggleEditMode('personal')" class="text-purple-600 hover:text-purple-700">
+                                <i class="fas fa-edit"></i>
+                            </button>
                         </div>
-                        <div class="grid grid-cols-2 gap-3">
+
+                        <div id="personalView" class="space-y-3">
                             <div>
-                                <label class="text-xs text-gray-500">Age</label>
-                                <p class="font-medium" id="viewAge">Add data</p>
+                                <label class="text-xs text-gray-500">Full Name</label>
+                                <p class="font-medium" id="viewName">Add data</p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-xs text-gray-500">Age</label>
+                                    <p class="font-medium" id="viewAge">Add data</p>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500">Gender</label>
+                                    <p class="font-medium" id="viewGender">Add data</p>
+                                </div>
                             </div>
                             <div>
-                                <label class="text-xs text-gray-500">Gender</label>
-                                <p class="font-medium" id="viewGender">Add data</p>
+                                <label class="text-xs text-gray-500">Blood Group</label>
+                                <p class="font-medium" id="viewBloodGroup">Add data</p>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500">Phone Number</label>
+                                <p class="font-medium" id="viewPhone">Add data</p>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500">Email</label>
+                                <p class="font-medium" id="viewEmail">Add data</p>
                             </div>
                         </div>
-                        <div>
-                            <label class="text-xs text-gray-500">Blood Group</label>
-                            <p class="font-medium" id="viewBloodGroup">Add data</p>
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-500">Phone Number</label>
-                            <p class="font-medium" id="viewPhone">Add data</p>
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-500">Email</label>
-                            <p class="font-medium" id="viewEmail">Add data</p>
-                        </div>
-                    </div>
 
-                    <div id="personalEdit" class="hidden space-y-3">
-                        <div>
-                            <label class="text-xs text-gray-500">Full Name</label>
-                            <input type="text" id="editName"
-                                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                                value="">
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
+                        <div id="personalEdit" class="hidden space-y-3">
                             <div>
-                                <label class="text-xs text-gray-500">Age</label>
-                                <input type="number" id="editAge"
+                                <label class="text-xs text-gray-500">Full Name</label>
+                                <input type="text" id="editName"
+                                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                    value="">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-xs text-gray-500">Age</label>
+                                    <input type="number" id="editAge"
+                                        class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                        value="">
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500">Gender</label>
+                                    <select id="editGender"
+                                        class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                                        <option value="" disabled selected>Select</option>
+                                        <option>Male</option>
+                                        <option>Female</option>
+                                        <option>Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500">Blood Group</label>
+                                <select id="editBloodGroup"
+                                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                                    <option value="" disabled selected>Select</option>
+                                    <option>O+</option>
+                                    <option>O-</option>
+                                    <option>A+</option>
+                                    <option>A-</option>
+                                    <option>B+</option>
+                                    <option>B-</option>
+                                    <option>AB+</option>
+                                    <option>AB-</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500">Phone Number</label>
+                                <input type="tel" id="editPhone"
                                     class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
                                     value="">
                             </div>
                             <div>
-                                <label class="text-xs text-gray-500">Gender</label>
-                                <select id="editGender"
-                                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none">
-                                    <option value="" disabled selected>Select</option>
-                                    <option>Male</option>
-                                    <option>Female</option>
-                                    <option>Other</option>
+                                <label class="text-xs text-gray-500">Email</label>
+                                <input type="email" id="editEmail"
+                                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                    value="" disabled>
+                            </div>
+                            <div class="flex gap-2 pt-2">
+                                <button onclick="savePersonalInfo()"
+                                    class="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition">
+                                    <i class="fas fa-check mr-1"></i> Save
+                                </button>
+                                <button onclick="cancelEdit('personal')"
+                                    class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Contacts -->
+                    <div class="bg-white rounded-xl border-2 border-gray-100 p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-lg flex items-center">
+                                <i class="fas fa-phone-square-alt text-red-600 mr-2"></i>
+                                Emergency Contacts
+                            </h3>
+                            <button onclick="addEmergencyContact()" class="text-purple-600 hover:text-purple-700">
+                                <i class="fas fa-plus-circle"></i>
+                            </button>
+                        </div>
+
+                        <div id="emergencyContactsList" class="space-y-3">
+                            <p class="text-gray-400 text-sm italic py-2 text-center" id="noContactsText">Add emergency
+                                contacts</p>
+                        </div>
+                    </div>
+
+                    <!-- Medical History -->
+                    <div class="bg-white rounded-xl border-2 border-gray-100 p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-lg flex items-center">
+                                <i class="fas fa-notes-medical text-green-600 mr-2"></i>
+                                Medical History
+                            </h3>
+                            <button onclick="toggleEditMode('medical')" class="text-purple-600 hover:text-purple-700">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+
+                        <div id="medicalView" class="space-y-3">
+                            <div>
+                                <label class="text-xs text-gray-500">Height & Weight</label>
+                                <p class="font-medium" id="viewHeightWeight">Add data</p>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500">Chronic Conditions</label>
+                                <p class="font-medium" id="viewConditions">Add data</p>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500">Allergies</label>
+                                <p class="font-medium" id="viewAllergies">Add data</p>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500">Current Medications</label>
+                                <p class="font-medium" id="viewMedications">Add data</p>
+                            </div>
+                        </div>
+
+                        <div id="medicalEdit" class="hidden space-y-3">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-xs text-gray-500">Height (cm)</label>
+                                    <input type="number" id="editHeight"
+                                        class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                        value="">
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500">Weight (kg)</label>
+                                    <input type="number" id="editWeight"
+                                        class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                        value="">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500">Chronic Conditions</label>
+                                <input type="text" id="editConditions"
+                                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                    value="" placeholder="Separate with commas">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500">Allergies</label>
+                                <input type="text" id="editAllergies"
+                                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                    value="" placeholder="Separate with commas">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500">Current Medications</label>
+                                <textarea id="editMedications" rows="2"
+                                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                    placeholder="Separate with commas"></textarea>
+                            </div>
+                            <div class="flex gap-2 pt-2">
+                                <button onclick="saveMedicalInfo()"
+                                    class="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition">
+                                    <i class="fas fa-check mr-1"></i> Save
+                                </button>
+                                <button onclick="cancelEdit('medical')"
+                                    class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings -->
+                    <div class="bg-white rounded-xl border-2 border-gray-100 p-4">
+                        <h3 class="font-bold text-lg mb-4 flex items-center">
+                            <i class="fas fa-cog text-gray-600 mr-2"></i>
+                            Settings
+                        </h3>
+
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-700">Notifications</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" checked class="sr-only peer">
+                                    <div
+                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600">
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-700">Medicine Reminders</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" checked class="sr-only peer">
+                                    <div
+                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600">
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-700">Dark Mode</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer">
+                                    <div
+                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600">
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="space-y-3 pb-6">
+                        <button onclick="downloadHealthData()"
+                            class="w-full py-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition flex items-center justify-center">
+                            <i class="fas fa-download mr-2"></i>
+                            Download My Health Data
+                        </button>
+                        <button id="logoutBtn"
+                            class="w-full py-3 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition flex items-center justify-center">
+                            <i class="fas fa-sign-out-alt mr-2"></i>
+                            Logout
+                        </button>
+                    </div> <!-- Inner p-6 closure -->
+                </div> <!-- authenticatedProfileView closure -->
+
+            </div>
+
+            <!-- Voice Chat Modal -->
+            <div id="voiceModal" class="fixed inset-0 bg-black/50 hidden z-[6000] flex items-center justify-center">
+                <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 text-center">
+                    <div
+                        class="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                        <i class="fas fa-microphone text-4xl text-purple-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Listening...</h3>
+                    <p class="text-gray-600 mb-6">Speak clearly in Hindi or English</p>
+                    <div class="flex justify-center gap-4">
+                        <button onclick="closeVoiceModal()"
+                            class="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
+                        <button onclick="processVoice()"
+                            class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">Done</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SOS Modal -->
+            <div id="sosModal" class="fixed inset-0 bg-red-600/90 hidden z-[6000] flex items-center justify-center">
+                <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 text-center">
+                    <div
+                        class="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                        <i class="fas fa-ambulance text-4xl text-red-600"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2 text-red-600">Emergency SOS Activated</h3>
+                    <p class="text-gray-600 mb-6">Calling 108... Notifying emergency contacts...</p>
+                    <div class="space-y-3 mb-6">
+                        <!-- Status Row: 108 -->
+                        <div class="flex items-center justify-between p-3 bg-gray-100 rounded-lg">
+                            <span class="flex items-center"><i class="fas fa-phone-alt text-green-500 mr-2"></i>108
+                                Ambulance</span>
+                            <span class="text-green-600 font-bold">Connecting...</span>
+                        </div>
+                        <!-- Status Row: Location -->
+                        <div class="flex items-center justify-between p-3 bg-gray-100 rounded-lg">
+                            <span class="flex items-center"><i
+                                    class="fas fa-map-marker-alt text-blue-500 mr-2"></i>Location
+                                Shared</span>
+                            <span class="text-green-600 font-bold" id="sosLocationStatus">Detecting...</span>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Contacts Notification Panel -->
+                    <div class="text-left mb-6">
+                        <h4 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3">Notify Family Members
+                        </h4>
+                        <div id="sosEmergencyContacts" class="space-y-2">
+                            <!-- Dynamic contacts will be injected here -->
+                            <p class="text-xs text-center text-gray-400 py-2">Loading contacts...</p>
+                        </div>
+                    </div>
+
+                    <button onclick="closeSOS()"
+                        class="w-full py-3 bg-gray-200 rounded-lg hover:bg-gray-300 font-bold text-gray-700">Cancel
+                        SOS</button>
+                </div>
+            </div>
+
+            <!-- Add Family Member Modal -->
+            <div id="addMemberModal"
+                class="fixed inset-0 bg-black/70 hidden z-[6000] flex items-center justify-center backdrop-blur-lg p-4 overflow-y-auto">
+                <div
+                    class="bg-white rounded-[2.5rem] p-8 max-w-lg w-full shadow-2xl animate-card-entry my-auto max-h-[95vh] overflow-y-auto custom-scrollbar">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-black text-gray-800">Add Family Member</h3>
+                        <button onclick="closeAddMemberModal()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+
+                    <form id="addMemberForm" onsubmit="event.preventDefault(); saveFamilyMember();" class="space-y-4">
+                        <div>
+                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Full Name</label>
+                            <input type="text" id="memberFullNames" required
+                                class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-pink-500 focus:outline-none font-medium mt-1"
+                                placeholder="e.g. Rahul Mane">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Age</label>
+                                <input type="number" id="memberAge" required
+                                    class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-pink-500 focus:outline-none font-medium mt-1"
+                                    placeholder="30">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Gender</label>
+                                <select id="memberGender"
+                                    class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-pink-500 focus:outline-none font-medium mt-1">
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
                                 </select>
                             </div>
                         </div>
-                        <div>
-                            <label class="text-xs text-gray-500">Blood Group</label>
-                            <select id="editBloodGroup"
-                                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none">
-                                <option value="" disabled selected>Select</option>
-                                <option>O+</option>
-                                <option>O-</option>
-                                <option>A+</option>
-                                <option>A-</option>
-                                <option>B+</option>
-                                <option>B-</option>
-                                <option>AB+</option>
-                                <option>AB-</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-500">Phone Number</label>
-                            <input type="tel" id="editPhone"
-                                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                                value="">
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-500">Email</label>
-                            <input type="email" id="editEmail"
-                                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                                value="" disabled>
-                        </div>
-                        <div class="flex gap-2 pt-2">
-                            <button onclick="savePersonalInfo()"
-                                class="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition">
-                                <i class="fas fa-check mr-1"></i> Save
-                            </button>
-                            <button onclick="cancelEdit('personal')"
-                                class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition">
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Emergency Contacts -->
-                <div class="bg-white rounded-xl border-2 border-gray-100 p-4">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-lg flex items-center">
-                            <i class="fas fa-phone-square-alt text-red-600 mr-2"></i>
-                            Emergency Contacts
-                        </h3>
-                        <button onclick="addEmergencyContact()" class="text-purple-600 hover:text-purple-700">
-                            <i class="fas fa-plus-circle"></i>
-                        </button>
-                    </div>
-
-                    <div id="emergencyContactsList" class="space-y-3">
-                        <p class="text-gray-400 text-sm italic py-2 text-center" id="noContactsText">Add emergency contacts</p>
-                    </div>
-                </div>
-
-                <!-- Medical History -->
-                <div class="bg-white rounded-xl border-2 border-gray-100 p-4">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-lg flex items-center">
-                            <i class="fas fa-notes-medical text-green-600 mr-2"></i>
-                            Medical History
-                        </h3>
-                        <button onclick="toggleEditMode('medical')" class="text-purple-600 hover:text-purple-700">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                    </div>
-
-                    <div id="medicalView" class="space-y-3">
-                        <div>
-                            <label class="text-xs text-gray-500">Height & Weight</label>
-                            <p class="font-medium" id="viewHeightWeight">Add data</p>
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-500">Chronic Conditions</label>
-                            <p class="font-medium" id="viewConditions">Add data</p>
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-500">Allergies</label>
-                            <p class="font-medium" id="viewAllergies">Add data</p>
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-500">Current Medications</label>
-                            <p class="font-medium" id="viewMedications">Add data</p>
-                        </div>
-                    </div>
-
-                    <div id="medicalEdit" class="hidden space-y-3">
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="text-xs text-gray-500">Height (cm)</label>
-                                <input type="number" id="editHeight"
-                                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                                    value="">
+                                <label
+                                    class="text-xs font-bold text-gray-400 uppercase tracking-widest">Relation</label>
+                                <input type="text" id="memberRelation" required
+                                    class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-pink-500 focus:outline-none font-medium mt-1"
+                                    placeholder="e.g. Mother">
                             </div>
                             <div>
-                                <label class="text-xs text-gray-500">Weight (kg)</label>
-                                <input type="number" id="editWeight"
-                                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                                    value="">
+                                <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Blood
+                                    Group</label>
+                                <select id="memberBloodGroup"
+                                    class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-pink-500 focus:outline-none font-medium mt-1">
+                                    <option>A+</option>
+                                    <option>A-</option>
+                                    <option>B+</option>
+                                    <option>B-</option>
+                                    <option>O+</option>
+                                    <option>O-</option>
+                                    <option>AB+</option>
+                                    <option>AB-</option>
+                                </select>
                             </div>
                         </div>
+
                         <div>
-                            <label class="text-xs text-gray-500">Chronic Conditions</label>
-                            <input type="text" id="editConditions"
-                                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                                value="" placeholder="Separate with commas">
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-500">Allergies</label>
-                            <input type="text" id="editAllergies"
-                                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                                value="" placeholder="Separate with commas">
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-500">Current Medications</label>
-                            <textarea id="editMedications" rows="2"
-                                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                                placeholder="Separate with commas"></textarea>
-                        </div>
-                        <div class="flex gap-2 pt-2">
-                            <button onclick="saveMedicalInfo()"
-                                class="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition">
-                                <i class="fas fa-check mr-1"></i> Save
-                            </button>
-                            <button onclick="cancelEdit('medical')"
-                                class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition">
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Settings -->
-                <div class="bg-white rounded-xl border-2 border-gray-100 p-4">
-                    <h3 class="font-bold text-lg mb-4 flex items-center">
-                        <i class="fas fa-cog text-gray-600 mr-2"></i>
-                        Settings
-                    </h3>
-
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-700">Notifications</span>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" checked class="sr-only peer">
-                                <div
-                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600">
-                                </div>
-                            </label>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-700">Medicine Reminders</span>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" checked class="sr-only peer">
-                                <div
-                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600">
-                                </div>
-                            </label>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-700">Dark Mode</span>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" class="sr-only peer">
-                                <div
-                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600">
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="space-y-3 pb-6">
-                    <button onclick="downloadHealthData()"
-                        class="w-full py-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition flex items-center justify-center">
-                        <i class="fas fa-download mr-2"></i>
-                        Download My Health Data
-                    </button>
-                    <button id="logoutBtn"
-                        class="w-full py-3 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition flex items-center justify-center">
-                        <i class="fas fa-sign-out-alt mr-2"></i>
-                        Logout
-                    </button>
-                </div> <!-- Inner p-6 closure -->
-            </div> <!-- authenticatedProfileView closure -->
-
-        </div>
-
-        <!-- Voice Chat Modal -->
-        <div id="voiceModal" class="fixed inset-0 bg-black/50 hidden z-[6000] flex items-center justify-center">
-            <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 text-center">
-                <div
-                    class="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-                    <i class="fas fa-microphone text-4xl text-purple-600"></i>
-                </div>
-                <h3 class="text-xl font-bold mb-2">Listening...</h3>
-                <p class="text-gray-600 mb-6">Speak clearly in Hindi or English</p>
-                <div class="flex justify-center gap-4">
-                    <button onclick="closeVoiceModal()"
-                        class="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
-                    <button onclick="processVoice()"
-                        class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">Done</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- SOS Modal -->
-        <div id="sosModal" class="fixed inset-0 bg-red-600/90 hidden z-[6000] flex items-center justify-center">
-            <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 text-center">
-                <div
-                    class="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-                    <i class="fas fa-ambulance text-4xl text-red-600"></i>
-                </div>
-                <h3 class="text-2xl font-bold mb-2 text-red-600">Emergency SOS Activated</h3>
-                <p class="text-gray-600 mb-6">Calling 108... Notifying emergency contacts...</p>
-                <div class="space-y-3 mb-6">
-                    <!-- Status Row: 108 -->
-                    <div class="flex items-center justify-between p-3 bg-gray-100 rounded-lg">
-                        <span class="flex items-center"><i class="fas fa-phone-alt text-green-500 mr-2"></i>108
-                            Ambulance</span>
-                        <span class="text-green-600 font-bold">Connecting...</span>
-                    </div>
-                    <!-- Status Row: Location -->
-                    <div class="flex items-center justify-between p-3 bg-gray-100 rounded-lg">
-                        <span class="flex items-center"><i class="fas fa-map-marker-alt text-blue-500 mr-2"></i>Location
-                            Shared</span>
-                        <span class="text-green-600 font-bold" id="sosLocationStatus">Detecting...</span>
-                    </div>
-                </div>
-
-                <!-- Emergency Contacts Notification Panel -->
-                <div class="text-left mb-6">
-                    <h4 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3">Notify Family Members
-                    </h4>
-                    <div id="sosEmergencyContacts" class="space-y-2">
-                        <!-- Dynamic contacts will be injected here -->
-                        <p class="text-xs text-center text-gray-400 py-2">Loading contacts...</p>
-                    </div>
-                </div>
-
-                <button onclick="closeSOS()"
-                    class="w-full py-3 bg-gray-200 rounded-lg hover:bg-gray-300 font-bold text-gray-700">Cancel
-                    SOS</button>
-            </div>
-        </div>
-
-        <!-- Add Family Member Modal -->
-        <div id="addMemberModal"
-            class="fixed inset-0 bg-black/70 hidden z-[6000] flex items-center justify-center backdrop-blur-lg p-4 overflow-y-auto">
-            <div
-                class="bg-white rounded-[2.5rem] p-8 max-w-lg w-full shadow-2xl animate-card-entry my-auto max-h-[95vh] overflow-y-auto custom-scrollbar">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-2xl font-black text-gray-800">Add Family Member</h3>
-                    <button onclick="closeAddMemberModal()" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
-
-                <form id="addMemberForm" onsubmit="event.preventDefault(); saveFamilyMember();" class="space-y-4">
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Full Name</label>
-                        <input type="text" id="memberFullNames" required
-                            class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-pink-500 focus:outline-none font-medium mt-1"
-                            placeholder="e.g. Rahul Mane">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Age</label>
-                            <input type="number" id="memberAge" required
+                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Health Condition
+                                (Optional)</label>
+                            <input type="text" id="memberCondition"
                                 class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-pink-500 focus:outline-none font-medium mt-1"
-                                placeholder="30">
+                                placeholder="e.g. Hypertension">
+                        </div>
+
+                        <button type="submit"
+                            class="w-full py-4 bg-gradient-pink text-white rounded-2xl font-bold shadow-lg shadow-pink-200 hover:shadow-pink-300 transition-all mt-4">
+                            Add Member
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Emergency Contact Modal -->
+            <div id="emergencyContactModal"
+                class="fixed inset-0 bg-black/70 hidden z-[6000] flex items-center justify-center backdrop-blur-lg p-4">
+                <div class="bg-white rounded-[2.5rem] p-8 max-w-md w-full shadow-2xl animate-card-entry">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-black text-gray-800" id="contactModalTitle">Add Emergency Contact</h3>
+                        <button onclick="closeContactModal()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <form id="contactForm" onsubmit="event.preventDefault(); saveContactFromModal();" class="space-y-4">
+                        <input type="hidden" id="editContactId">
+                        <div>
+                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Full Name /
+                                Relation</label>
+                            <input type="text" id="contactNameInput" required
+                                class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-red-500 focus:outline-none font-medium mt-1"
+                                placeholder="e.g. Mother - Sunita">
                         </div>
                         <div>
-                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Gender</label>
-                            <select id="memberGender"
-                                class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-pink-500 focus:outline-none font-medium mt-1">
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Other">Other</option>
-                            </select>
+                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Phone
+                                Number</label>
+                            <input type="tel" id="contactPhoneInput" required
+                                class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-red-500 focus:outline-none font-medium mt-1"
+                                placeholder="+91 98765 43210">
                         </div>
-                    </div>
+                        <button type="submit"
+                            class="w-full py-4 bg-red-600 text-white rounded-2xl font-bold shadow-lg shadow-red-100 hover:bg-red-700 transition-all mt-4">
+                            Save Contact
+                        </button>
+                    </form>
+                </div>
+            </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+            <!-- Medicine Reminder Modal -->
+            <div id="medicineReminderModal"
+                class="fixed inset-0 bg-black/70 hidden z-[6000] flex items-center justify-center backdrop-blur-lg p-4">
+                <div class="bg-white rounded-[2.5rem] p-8 max-w-md w-full shadow-2xl animate-card-entry">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-black text-gray-800">Add Medicine Reminder</h3>
+                        <button onclick="closeMedicineModal()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <form id="medicineForm" onsubmit="event.preventDefault(); saveMedicineFromModal();"
+                        class="space-y-4">
                         <div>
-                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Relation</label>
-                            <input type="text" id="memberRelation" required
-                                class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-pink-500 focus:outline-none font-medium mt-1"
-                                placeholder="e.g. Mother">
+                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Medicine
+                                Name</label>
+                            <input type="text" id="medicineNameInput" required
+                                class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-purple-500 focus:outline-none font-medium mt-1"
+                                placeholder="e.g. Paracetamol">
                         </div>
                         <div>
-                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Blood
-                                Group</label>
-                            <select id="memberBloodGroup"
-                                class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-pink-500 focus:outline-none font-medium mt-1">
-                                <option>A+</option>
-                                <option>A-</option>
-                                <option>B+</option>
-                                <option>B-</option>
-                                <option>O+</option>
-                                <option>O-</option>
-                                <option>AB+</option>
-                                <option>AB-</option>
-                            </select>
+                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Time</label>
+                            <input type="time" id="medicineTimeInput" required
+                                class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-purple-500 focus:outline-none font-medium mt-1">
+                        </div>
+                        <button type="submit"
+                            class="w-full py-4 bg-purple-600 text-white rounded-2xl font-bold shadow-lg shadow-purple-100 hover:bg-purple-700 transition-all mt-4">
+                            Set Reminder
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Generic Confirmation Modal -->
+            <div id="confirmModal"
+                class="fixed inset-0 bg-black/70 hidden z-[7000] flex items-center justify-center backdrop-blur-lg p-4">
+                <div class="bg-white rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl animate-card-entry text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>
+                    </div>
+                    <h3 class="text-xl font-black text-gray-800 mb-2" id="confirmTitle">Are you sure?</h3>
+                    <p class="text-gray-500 mb-6" id="confirmMessage">This action cannot be undone.</p>
+                    <div class="flex gap-3">
+                        <button onclick="closeConfirmModal()"
+                            class="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-all">
+                            Cancel
+                        </button>
+                        <button id="confirmYesBtn"
+                            class="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 shadow-lg shadow-red-100 transition-all">
+                            Yes, Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <footer id="mainFooter" class="hidden bg-gray-900 text-white">
+            <div class="max-w-7xl mx-auto px-4 py-12">
+                <div class="grid md:grid-cols-4 gap-8 mb-8">
+                    <!-- Brand Section -->
+                    <div>
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-heartbeat text-3xl text-red-500 mr-2"></i>
+                            <span class="text-2xl font-bold gradient-text">LifePulse</span>
+                        </div>
+                        <p class="text-gray-400 mb-4">AI-powered healthcare support designed for rural India. Works
+                            offline,
+                            speaks your language.</p>
+                        <div class="flex space-x-3">
+                            <a href="#"
+                                class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#"
+                                class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#"
+                                class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="#"
+                                class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
                         </div>
                     </div>
 
+                    <!-- Quick Links -->
                     <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Health Condition
-                            (Optional)</label>
-                        <input type="text" id="memberCondition"
-                            class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-pink-500 focus:outline-none font-medium mt-1"
-                            placeholder="e.g. Hypertension">
+                        <h4 class="text-lg font-bold mb-4">Quick Links</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#" onclick="showSection('home')"
+                                    class="text-gray-400 hover:text-purple-400 transition">Home</a></li>
+                            <li><a href="#" onclick="showSection('dashboard')"
+                                    class="text-gray-400 hover:text-purple-400 transition">Dashboard</a></li>
+                            <li><a href="#" onclick="showSection('ai-assistant')"
+                                    class="text-gray-400 hover:text-purple-400 transition">AI Assistant</a></li>
+                            <li><a href="#" onclick="showSection('emergency')"
+                                    class="text-gray-400 hover:text-purple-400 transition">Emergency</a></li>
+                            <li><a href="#" onclick="showSection('family')"
+                                    class="text-gray-400 hover:text-purple-400 transition">Family Health</a></li>
+                        </ul>
                     </div>
 
-                    <button type="submit"
-                        class="w-full py-4 bg-gradient-pink text-white rounded-2xl font-bold shadow-lg shadow-pink-200 hover:shadow-pink-300 transition-all mt-4">
-                        Add Member
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Emergency Contact Modal -->
-        <div id="emergencyContactModal"
-            class="fixed inset-0 bg-black/70 hidden z-[6000] flex items-center justify-center backdrop-blur-lg p-4">
-            <div class="bg-white rounded-[2.5rem] p-8 max-w-md w-full shadow-2xl animate-card-entry">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-2xl font-black text-gray-800" id="contactModalTitle">Add Emergency Contact</h3>
-                    <button onclick="closeContactModal()" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
-                <form id="contactForm" onsubmit="event.preventDefault(); saveContactFromModal();" class="space-y-4">
-                    <input type="hidden" id="editContactId">
+                    <!-- Features -->
                     <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Full Name /
-                            Relation</label>
-                        <input type="text" id="contactNameInput" required
-                            class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-red-500 focus:outline-none font-medium mt-1"
-                            placeholder="e.g. Mother - Sunita">
+                        <h4 class="text-lg font-bold mb-4">Features</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#" onclick="showSection('medicine')"
+                                    class="text-gray-400 hover:text-purple-400 transition">Medicine Reminder</a></li>
+                            <li><a href="#" onclick="showSection('diet')"
+                                    class="text-gray-400 hover:text-purple-400 transition">Diet Generator</a></li>
+                            <li><a href="#" onclick="showSection('doctor-connect')"
+                                    class="text-gray-400 hover:text-purple-400 transition">Doctor Connect</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-purple-400 transition">Health Records</a>
+                            </li>
+                            <li><a href="#" class="text-gray-400 hover:text-purple-400 transition">Offline Mode</a></li>
+                        </ul>
                     </div>
+
+                    <!-- Contact -->
                     <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Phone
-                            Number</label>
-                        <input type="tel" id="contactPhoneInput" required
-                            class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-red-500 focus:outline-none font-medium mt-1"
-                            placeholder="+91 98765 43210">
-                    </div>
-                    <button type="submit"
-                        class="w-full py-4 bg-red-600 text-white rounded-2xl font-bold shadow-lg shadow-red-100 hover:bg-red-700 transition-all mt-4">
-                        Save Contact
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Medicine Reminder Modal -->
-        <div id="medicineReminderModal"
-            class="fixed inset-0 bg-black/70 hidden z-[6000] flex items-center justify-center backdrop-blur-lg p-4">
-            <div class="bg-white rounded-[2.5rem] p-8 max-w-md w-full shadow-2xl animate-card-entry">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-2xl font-black text-gray-800">Add Medicine Reminder</h3>
-                    <button onclick="closeMedicineModal()" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
-                <form id="medicineForm" onsubmit="event.preventDefault(); saveMedicineFromModal();" class="space-y-4">
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Medicine
-                            Name</label>
-                        <input type="text" id="medicineNameInput" required
-                            class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-purple-500 focus:outline-none font-medium mt-1"
-                            placeholder="e.g. Paracetamol">
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Time</label>
-                        <input type="time" id="medicineTimeInput" required
-                            class="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:ring-2 focus:ring-purple-500 focus:outline-none font-medium mt-1">
-                    </div>
-                    <button type="submit"
-                        class="w-full py-4 bg-purple-600 text-white rounded-2xl font-bold shadow-lg shadow-purple-100 hover:bg-purple-700 transition-all mt-4">
-                        Set Reminder
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Generic Confirmation Modal -->
-        <div id="confirmModal"
-            class="fixed inset-0 bg-black/70 hidden z-[7000] flex items-center justify-center backdrop-blur-lg p-4">
-            <div class="bg-white rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl animate-card-entry text-center">
-                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>
-                </div>
-                <h3 class="text-xl font-black text-gray-800 mb-2" id="confirmTitle">Are you sure?</h3>
-                <p class="text-gray-500 mb-6" id="confirmMessage">This action cannot be undone.</p>
-                <div class="flex gap-3">
-                    <button onclick="closeConfirmModal()"
-                        class="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-all">
-                        Cancel
-                    </button>
-                    <button id="confirmYesBtn"
-                        class="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 shadow-lg shadow-red-100 transition-all">
-                        Yes, Delete
-                    </button>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Footer -->
-    <footer id="mainFooter" class="hidden bg-gray-900 text-white">
-        <div class="max-w-7xl mx-auto px-4 py-12">
-            <div class="grid md:grid-cols-4 gap-8 mb-8">
-                <!-- Brand Section -->
-                <div>
-                    <div class="flex items-center mb-4">
-                        <i class="fas fa-heartbeat text-3xl text-red-500 mr-2"></i>
-                        <span class="text-2xl font-bold gradient-text">LifePulse</span>
-                    </div>
-                    <p class="text-gray-400 mb-4">AI-powered healthcare support designed for rural India. Works offline,
-                        speaks your language.</p>
-                    <div class="flex space-x-3">
-                        <a href="#"
-                            class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#"
-                            class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#"
-                            class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a href="#"
-                            class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition">
-                            <i class="fab fa-linkedin-in"></i>
-                        </a>
+                        <h4 class="text-lg font-bold mb-4">Contact Us</h4>
+                        <ul class="space-y-3 text-gray-400">
+                            <li class="flex items-start">
+                                <i class="fas fa-envelope mt-1 mr-3 text-purple-400"></i>
+                                <a href="mailto:support@lifepulse.in"
+                                    class="hover:text-purple-400 transition">support@lifepulse.in</a>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-phone mt-1 mr-3 text-purple-400"></i>
+                                <a href="tel:1800-123-4567" class="hover:text-purple-400 transition">1800-123-4567</a>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-map-marker-alt mt-1 mr-3 text-purple-400"></i>
+                                <span>Healthcare for All<br>Pune, India</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
-                <!-- Quick Links -->
-                <div>
-                    <h4 class="text-lg font-bold mb-4">Quick Links</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#" onclick="showSection('home')"
-                                class="text-gray-400 hover:text-purple-400 transition">Home</a></li>
-                        <li><a href="#" onclick="showSection('dashboard')"
-                                class="text-gray-400 hover:text-purple-400 transition">Dashboard</a></li>
-                        <li><a href="#" onclick="showSection('ai-assistant')"
-                                class="text-gray-400 hover:text-purple-400 transition">AI Assistant</a></li>
-                        <li><a href="#" onclick="showSection('emergency')"
-                                class="text-gray-400 hover:text-purple-400 transition">Emergency</a></li>
-                        <li><a href="#" onclick="showSection('family')"
-                                class="text-gray-400 hover:text-purple-400 transition">Family Health</a></li>
-                    </ul>
-                </div>
-
-                <!-- Features -->
-                <div>
-                    <h4 class="text-lg font-bold mb-4">Features</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#" onclick="showSection('medicine')"
-                                class="text-gray-400 hover:text-purple-400 transition">Medicine Reminder</a></li>
-                        <li><a href="#" onclick="showSection('diet')"
-                                class="text-gray-400 hover:text-purple-400 transition">Diet Generator</a></li>
-                        <li><a href="#" onclick="showSection('doctor-connect')"
-                                class="text-gray-400 hover:text-purple-400 transition">Doctor Connect</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition">Health Records</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition">Offline Mode</a></li>
-                    </ul>
-                </div>
-
-                <!-- Contact -->
-                <div>
-                    <h4 class="text-lg font-bold mb-4">Contact Us</h4>
-                    <ul class="space-y-3 text-gray-400">
-                        <li class="flex items-start">
-                            <i class="fas fa-envelope mt-1 mr-3 text-purple-400"></i>
-                            <a href="mailto:support@lifepulse.in"
-                                class="hover:text-purple-400 transition">support@lifepulse.in</a>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-phone mt-1 mr-3 text-purple-400"></i>
-                            <a href="tel:1800-123-4567" class="hover:text-purple-400 transition">1800-123-4567</a>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-map-marker-alt mt-1 mr-3 text-purple-400"></i>
-                            <span>Healthcare for All<br>Pune, India</span>
-                        </li>
-                    </ul>
+                <!-- Bottom Bar -->
+                <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+                    <p class="text-gray-400 text-sm mb-4 md:mb-0">
+                        © 2026 LifePulse. All rights reserved. | Making healthcare accessible for everyone.
+                    </p>
+                    <div class="flex space-x-6 text-sm">
+                        <a href="#" class="text-gray-400 hover:text-purple-400 transition">Privacy Policy</a>
+                        <a href="#" class="text-gray-400 hover:text-purple-400 transition">Terms of Service</a>
+                        <a href="#" class="text-gray-400 hover:text-purple-400 transition">About Us</a>
+                    </div>
                 </div>
             </div>
+        </footer>
 
-            <!-- Bottom Bar -->
-            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
-                <p class="text-gray-400 text-sm mb-4 md:mb-0">
-                    © 2026 LifePulse. All rights reserved. | Making healthcare accessible for everyone.
-                </p>
-                <div class="flex space-x-6 text-sm">
-                    <a href="#" class="text-gray-400 hover:text-purple-400 transition">Privacy Policy</a>
-                    <a href="#" class="text-gray-400 hover:text-purple-400 transition">Terms of Service</a>
-                    <a href="#" class="text-gray-400 hover:text-purple-400 transition">About Us</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <script src="script.js"></script>
-    <script type="module" src="firebase-auth.js"></script>
+        <script src="script.js"></script>
+        <script type="module" src="firebase-auth.js"></script>
 </body>
 
 </html>
