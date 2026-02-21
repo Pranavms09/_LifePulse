@@ -22,12 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initCharts();
   checkConnectivity();
 
-  // Heart rate simulation
-  setInterval(() => {
-    const hr = 70 + Math.floor(Math.random() * 10);
-    const hrElement = document.getElementById("heartRate");
-    if (hrElement) hrElement.textContent = hr;
-  }, 3000);
+  // Heart rate simulation removed at user request to avoid fake data
 
   // Hide loading screen after 2 seconds
   window.addEventListener("load", function () {
