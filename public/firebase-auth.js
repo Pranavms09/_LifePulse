@@ -224,11 +224,18 @@ onAuthStateChanged(auth, async (user) => {
     const viewEmail = document.getElementById("viewEmail");
     const editEmail = document.getElementById("editEmail");
 
-    // New Profile Fields (Manual Auth)
-    const viewAge = document.getElementById("viewAge"); // Might need to add these IDs to index.html if not present
+    // New Profile Fields
+    const viewAge = document.getElementById("viewAge");
     const editAge = document.getElementById("editAge");
     const viewGender = document.getElementById("viewGender");
     const editGender = document.getElementById("editGender");
+    const viewBloodGroup = document.getElementById("viewBloodGroup");
+    const editBloodGroup = document.getElementById("editBloodGroup");
+    const viewPhone = document.getElementById("viewPhone");
+    const editPhone = document.getElementById("editPhone");
+    const viewHeightWeight = document.getElementById("viewHeightWeight");
+    const editHeight = document.getElementById("editHeight");
+    const editWeight = document.getElementById("editWeight");
 
     if (viewName) viewName.textContent = userData.displayName;
     if (editName) editName.value = userData.displayName;
@@ -242,6 +249,42 @@ onAuthStateChanged(auth, async (user) => {
     if (userData.gender) {
       if (viewGender) viewGender.textContent = userData.gender;
       if (editGender) editGender.value = userData.gender;
+    }
+    if (userData.bloodGroup) {
+      if (viewBloodGroup) viewBloodGroup.textContent = userData.bloodGroup;
+      if (editBloodGroup) editBloodGroup.value = userData.bloodGroup;
+    }
+    if (userData.mobile) {
+      if (viewPhone) viewPhone.textContent = userData.mobile;
+      if (editPhone) editPhone.value = userData.mobile;
+    }
+    if (userData.height && userData.weight) {
+      if (viewHeightWeight)
+        viewHeightWeight.textContent = `${userData.height} cm • ${userData.weight} kg`;
+      if (editHeight) editHeight.value = userData.height;
+      if (editWeight) editWeight.value = userData.weight;
+    }
+
+    // --- Multi-Location Profile Image Sync ---
+    const photoURL = user.photoURL || userData.photoURL;
+    if (photoURL) {
+      // Sidebar Header
+      const profileImg = document.getElementById("profileImage");
+      const profileIcon = document.getElementById("profileIcon");
+      if (profileImg) {
+        profileImg.src = photoURL;
+        profileImg.classList.remove("hidden");
+        if (profileIcon) profileIcon.classList.add("hidden");
+      }
+
+      // Navbar Button
+      const navProfileImg = document.getElementById("navProfileImg");
+      const navProfileIcon = document.getElementById("navProfileIcon");
+      if (navProfileImg) {
+        navProfileImg.src = photoURL;
+        navProfileImg.classList.remove("hidden");
+        if (navProfileIcon) navProfileIcon.classList.add("hidden");
+      }
     }
   } else {
     console.log("No User");

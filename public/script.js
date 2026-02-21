@@ -1661,7 +1661,7 @@ function cancelEdit(section) {
   }
 }
 
-function savePersonalInfo() {
+async function savePersonalInfo() {
   // Get values from edit fields
   const name = document.getElementById("editName").value;
   const age = document.getElementById("editAge").value;
@@ -1670,30 +1670,54 @@ function savePersonalInfo() {
   const phone = document.getElementById("editPhone").value;
   const email = document.getElementById("editEmail").value;
 
+  // Sync to Firestore if available
+  if (window.saveProfileData) {
+    try {
+      await window.saveProfileData({
+        displayName: name,
+        age: parseInt(age),
+        gender: gender,
+        bloodGroup: bloodGroup,
+        mobile: phone,
+      });
+    } catch (err) {
+      console.error("Firestore sync failed:", err);
+    }
+  }
+
   // Update view fields
-  document.getElementById("viewName").textContent = name;
-  document.getElementById("viewAge").textContent = age;
-  document.getElementById("viewGender").textContent = gender;
-  document.getElementById("viewBloodGroup").textContent = bloodGroup;
-  document.getElementById("viewPhone").textContent = phone;
-  document.getElementById("viewEmail").textContent = email;
+  if (document.getElementById("viewName"))
+    document.getElementById("viewName").textContent = name;
+  if (document.getElementById("viewAge"))
+    document.getElementById("viewAge").textContent = age;
+  if (document.getElementById("viewGender"))
+    document.getElementById("viewGender").textContent = gender;
+  if (document.getElementById("viewBloodGroup"))
+    document.getElementById("viewBloodGroup").textContent = bloodGroup;
+  if (document.getElementById("viewPhone"))
+    document.getElementById("viewPhone").textContent = phone;
+  if (document.getElementById("viewEmail"))
+    document.getElementById("viewEmail").textContent = email;
 
   // Update header display
-  document.getElementById("profileNameDisplay").textContent = name;
-  document.getElementById("profileAgeGenderDisplay").textContent =
-    `${age} years • ${gender}`;
+  if (document.getElementById("profileNameDisplay"))
+    document.getElementById("profileNameDisplay").textContent = name;
+  if (document.getElementById("profileAgeGenderDisplay")) {
+    document.getElementById("profileAgeGenderDisplay").textContent =
+      `${age} years • ${gender}`;
+  }
 
   // Hide edit mode
   cancelEdit("personal");
 
-  // Save to localStorage
+  // Save to localStorage (Fallback)
   const profileData = { name, age, gender, bloodGroup, phone, email };
   localStorage.setItem("profileData", JSON.stringify(profileData));
 
   showNotification("Profile updated successfully!", "success");
 }
 
-function saveMedicalInfo() {
+async function saveMedicalInfo() {
   // Get values from edit fields
   const height = document.getElementById("editHeight").value;
   const weight = document.getElementById("editWeight").value;
@@ -1701,17 +1725,37 @@ function saveMedicalInfo() {
   const allergies = document.getElementById("editAllergies").value;
   const medications = document.getElementById("editMedications").value;
 
+  // Sync to Firestore if available
+  if (window.saveProfileData) {
+    try {
+      await window.saveProfileData({
+        height: parseInt(height),
+        weight: parseInt(weight),
+        conditions: conditions,
+        allergies: allergies,
+        medications: medications,
+      });
+    } catch (err) {
+      console.error("Firestore sync failed:", err);
+    }
+  }
+
   // Update view fields
-  document.getElementById("viewHeightWeight").textContent =
-    `${height} cm • ${weight} kg`;
-  document.getElementById("viewConditions").textContent = conditions;
-  document.getElementById("viewAllergies").textContent = allergies;
-  document.getElementById("viewMedications").textContent = medications;
+  if (document.getElementById("viewHeightWeight")) {
+    document.getElementById("viewHeightWeight").textContent =
+      `${height} cm • ${weight} kg`;
+  }
+  if (document.getElementById("viewConditions"))
+    document.getElementById("viewConditions").textContent = conditions;
+  if (document.getElementById("viewAllergies"))
+    document.getElementById("viewAllergies").textContent = allergies;
+  if (document.getElementById("viewMedications"))
+    document.getElementById("viewMedications").textContent = medications;
 
   // Hide edit mode
   cancelEdit("medical");
 
-  // Save to localStorage
+  // Save to localStorage (Fallback)
   const medicalData = { height, weight, conditions, allergies, medications };
   localStorage.setItem("medicalData", JSON.stringify(medicalData));
 
@@ -2484,15 +2528,25 @@ if (sendBtn) {
 }
 // Profile Completion
 async function saveProfileCompletion() {
+  const name = document.getElementById("cp-name").value;
   const age = document.getElementById("cp-age").value;
   const gender = document.getElementById("cp-gender").value;
+  const bloodGroup = document.getElementById("cp-blood-group").value;
   const mobile = document.getElementById("cp-mobile").value;
   const height = document.getElementById("cp-height").value;
   const weight = document.getElementById("cp-weight").value;
   const submitBtn = document.getElementById("cp-submit-btn");
 
   // Validation
-  if (!age || !gender || !mobile || !height || !weight) {
+  if (
+    !name ||
+    !age ||
+    !gender ||
+    !bloodGroup ||
+    !mobile ||
+    !height ||
+    !weight
+  ) {
     showNotification("Please fill in all fields", "error");
     return;
   }
@@ -2524,8 +2578,10 @@ async function saveProfileCompletion() {
     }
 
     const profileData = {
+      displayName: name,
       age: parseInt(age),
       gender: gender,
+      bloodGroup: bloodGroup,
       mobile: mobile,
       height: parseInt(height),
       weight: parseInt(weight),
@@ -2536,10 +2592,9 @@ async function saveProfileCompletion() {
       await window.saveProfileData(profileData);
       showNotification("Profile completed successfully!", "success");
 
-      // Redirect to dashboard (this will be handled by the auth state observer, but we can trigger it)
+      // Redirect to dashboard
       setTimeout(() => {
         showSection("dashboard");
-        // Reload to refresh UI states if needed, or rely on state observer
         window.location.reload();
       }, 1500);
     } else {
