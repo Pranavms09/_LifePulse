@@ -477,7 +477,7 @@
                                         <input type="text" placeholder="Type your symptoms..."
                                             class="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                             onkeypress="if(event.key==='Enter') heroChat(this)">
-                                        <button onclick="startVoiceChat()"
+                                        <button onclick="toggleVoiceInput()"
                                             class="w-10 h-10 bg-purple-600 rounded-full text-white flex items-center justify-center hover:bg-purple-700">
                                             <i class="fas fa-microphone"></i>
                                         </button>
@@ -739,7 +739,7 @@
                             <option value="bn" class="text-gray-800">বাংলা</option>
                             <option value="mr" class="text-gray-800">मराठी</option>
                         </select>
-                        <button onclick="startVoiceChat()"
+                        <button onclick="toggleVoiceInput()"
                             class="w-10 h-10 bg-white/20 rounded-full hover:bg-white/30 transition flex items-center justify-center"
                             title="Voice Mode">
                             <i class="fas fa-microphone"></i>
@@ -817,10 +817,14 @@
                     <div class="bg-white border-t p-4"
                         style="padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 48px);">
                         <div class="flex gap-2">
-                            <button onclick="toggleVoiceInput()"
-                                class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition text-gray-600">
-                                <i class="fas fa-microphone"></i>
-                            </button>
+                            <div class="relative">
+                                <button id="voice-btn" onclick="toggleVoiceInput()"
+                                    class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition text-gray-600">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                                <span id="voice-status-indicator"
+                                    class="hidden absolute -top-8 left-1/2 -translate-x-1/2 bg-purple-600 text-white text-[10px] px-2 py-1 rounded-md whitespace-nowrap">Listening...</span>
+                            </div>
                             <input type="text" id="ai-prompt-input" placeholder="Type your health query..."
                                 class="flex-1 bg-gray-100 rounded-full px-6 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 onkeypress="if(event.key==='Enter') handleAiRequest()">
@@ -2301,20 +2305,29 @@
 
             </div>
 
-            <!-- Voice Chat Modal -->
-            <div id="voiceModal" class="fixed inset-0 bg-black/50 hidden z-[6000] flex items-center justify-center">
-                <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 text-center">
-                    <div
-                        class="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-                        <i class="fas fa-microphone text-4xl text-purple-600"></i>
+            <!-- Voice Assistant Modal -->
+            <div id="voiceModal"
+                class="fixed inset-0 bg-black/60 hidden z-[9000] flex items-center justify-center backdrop-blur-sm">
+                <div
+                    class="bg-white rounded-3xl p-8 max-w-md w-full mx-4 text-center shadow-2xl transform transition-all">
+                    <div id="voiceMicContainer"
+                        class="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6 transition-all duration-300">
+                        <i id="voiceMicIcon" class="fas fa-microphone text-4xl text-purple-600"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-2">Listening...</h3>
-                    <p class="text-gray-600 mb-6">Speak clearly in Hindi or English</p>
+                    <h3 id="voiceStatus" class="text-2xl font-black mb-2 text-gray-800">Listening...</h3>
+                    <p class="text-sm text-gray-500 mb-6">Speak in Hindi or English (Try: "डैशबोर्ड खोलो")</p>
+
+                    <div id="voiceRecognizedText"
+                        class="mb-8 rounded-xl text-center flex items-center justify-center text-gray-600">
+                        <!-- Recognized text will appear here -->
+                        <span class="opacity-50">Transcribing...</span>
+                    </div>
+
                     <div class="flex justify-center gap-4">
-                        <button onclick="closeVoiceModal()"
-                            class="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
-                        <button onclick="processVoice()"
-                            class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">Done</button>
+                        <button onclick="stopVoiceAssistant()"
+                            class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-2xl font-bold hover:bg-gray-200 transition">Cancel</button>
+                        <button onclick="processVoiceCommandManual()"
+                            class="flex-1 px-6 py-3 bg-purple-600 text-white rounded-2xl font-bold hover:bg-purple-700 shadow-lg shadow-purple-100 transition">Done</button>
                     </div>
                 </div>
             </div>

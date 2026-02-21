@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
   animateStats();
   initCharts();
   checkConnectivity();
+  initVoiceAssistant();
 
   // Heart rate simulation removed at user request to avoid fake data
 
@@ -541,130 +542,100 @@ function getLocalizedWelcome(lang) {
   return welcomes[lang] || welcomes["en"];
 }
 
-// Voice Functions
+// --- Integrated Voice Assistant (Bilingual: Hindi/English) ---
+let recognitionInstance = null;
+let isVoiceActive = false;
+
+function initVoiceAssistant() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) return;
+
+  recognitionInstance = new SpeechRecognition();
+  recognitionInstance.continuous = false;
+  recognitionInstance.interimResults = true; // Real-time text sync
+
+  recognitionInstance.onstart = () => {
+    isVoiceActive = true;
+    const voiceBtn = document.getElementById("voice-btn");
+    const statusInd = document.getElementById("voice-status-indicator");
+    if (voiceBtn) voiceBtn.classList.add("voice-listening");
+    if (statusInd) statusInd.classList.remove("hidden");
+  };
+
+  recognitionInstance.onresult = (event) => {
+    const inputField = document.getElementById("ai-prompt-input");
+    let interimTranscript = "";
+    let finalTranscript = "";
+
+    for (let i = event.resultIndex; i < event.results.length; ++i) {
+      if (event.results[i].isFinal) {
+        finalTranscript += event.results[i][0].transcript;
+      } else {
+        interimTranscript += event.results[i][0].transcript;
+      }
+    }
+
+    if (inputField) {
+      // Live text sync
+      inputField.value = finalTranscript || interimTranscript;
+    }
+
+    if (finalTranscript) {
+      console.log("Final Transcript:", finalTranscript);
+      // Delay slightly before auto-sending to ensure UI reflects the final text
+      setTimeout(() => {
+        if (isVoiceActive) {
+          stopVoiceAssistant();
+          handleAiRequest();
+        }
+      }, 500);
+    }
+  };
+
+  recognitionInstance.onerror = (event) => {
+    console.error("Voice Error:", event.error);
+    if (event.error === "not-allowed") {
+      showNotification("Voice input not supported on this device. Please type.", "error");
+    }
+    stopVoiceAssistant();
+  };
+
+  recognitionInstance.onend = () => {
+    stopVoiceAssistant();
+  };
+}
+
 function toggleVoiceInput() {
-  if (
-    !("webkitSpeechRecognition" in window) &&
-    !("SpeechRecognition" in window)
-  ) {
-    showNotification(
-      "Speech recognition is not supported in this browser.",
-      "error",
-    );
+  if (!recognitionInstance) initVoiceAssistant();
+  if (!recognitionInstance) {
+    showNotification("Voice input not supported on this device. Please type.", "error");
     return;
   }
 
-  const voiceModal = document.getElementById("voiceModal");
-  if (voiceModal) {
-    voiceModal.classList.remove("hidden");
-    startListening();
-  }
-}
-
-let recognition = null;
-let isStarting = false; // Tracks if voice recognition is in the process of starting
-
-function startListening() {
-  // If already listening or starting, abort the current instance first
-  if ((isListening || isStarting) && recognition) {
-    isIntentionalStop = true;
+  if (isVoiceActive) {
+    stopVoiceAssistant();
+  } else {
+    // Set language based on active choice (default to Hindi if not set)
+    recognitionInstance.lang = (aiLanguage === "hi" || !aiLanguage) ? "hi-IN" : "en-US";
     try {
-      recognition.abort();
+      recognitionInstance.start();
     } catch (e) {
-      console.warn("Error aborting previous recognition:", e);
+      console.error("Recognition Start Error:", e);
     }
-    isListening = false;
-    isStarting = false;
-  }
-
-  const SpeechRecognition =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    showNotification(
-      "Speech recognition is not supported in this browser.",
-      "error",
-    );
-    closeVoiceModal();
-    return;
-  }
-
-  recognition = new SpeechRecognition();
-
-  // Map our language codes to recognition locales
-  const langMap = {
-    en: "en-IN",
-    hi: "hi-IN",
-    ta: "ta-IN",
-    te: "te-IN",
-    bn: "bn-IN",
-    mr: "mr-IN",
-  };
-
-  recognition.lang = langMap[aiLanguage] || "en-IN";
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
-
-  recognition.onstart = () => {
-    isListening = true;
-    isStarting = false;
-    isIntentionalStop = false;
-    console.log("Speech recognition started");
-  };
-
-  recognition.onresult = (event) => {
-    const text = event.results[0][0].transcript;
-    const input = document.getElementById("ai-prompt-input");
-    if (input) {
-      input.value = text;
-    }
-  };
-
-  recognition.onerror = (event) => {
-    console.error("Speech recognition error:", event.error);
-    isStarting = false;
-    isListening = false;
-
-    if (event.error !== "no-speech" && event.error !== "aborted") {
-      showNotification(`Voice Error: ${event.error}`, "error");
-    } else if (event.error === "aborted" && !isIntentionalStop) {
-      // Only show aborted if it wasn't triggered by our own logic
-      showNotification("Voice session interrupted.", "warning");
-    }
-    closeVoiceModal();
-  };
-
-  recognition.onend = () => {
-    isListening = false;
-    isStarting = false;
-    if (!isIntentionalStop) {
-      closeVoiceModal();
-    }
-  };
-
-  try {
-    isStarting = true;
-    recognition.start();
-  } catch (e) {
-    console.error("Failed to start speech recognition:", e);
-    isStarting = false;
-    showNotification("Wait a moment before trying again.", "warning");
-    closeVoiceModal();
   }
 }
 
-function closeVoiceModal() {
-  if (isListening && recognition) {
-    isIntentionalStop = true;
-    recognition.stop();
+function stopVoiceAssistant() {
+  if (recognitionInstance && isVoiceActive) {
+    recognitionInstance.stop();
   }
-  document.getElementById("voiceModal").classList.add("hidden");
-  isListening = false;
+  isVoiceActive = false;
+  const voiceBtn = document.getElementById("voice-btn");
+  const statusInd = document.getElementById("voice-status-indicator");
+  if (voiceBtn) voiceBtn.classList.remove("voice-listening");
+  if (statusInd) statusInd.classList.add("hidden");
 }
 
-function processVoice() {
-  closeVoiceModal();
-  handleAiRequest();
-}
 
 function speakResponse(element) {
   if (!("speechSynthesis" in window)) {
@@ -698,7 +669,12 @@ function speakResponse(element) {
       mr: "mr-IN",
     };
 
-    utterance.lang = langMap[aiLanguage] || "en-IN";
+    // Auto-detect language if not explicitly set by aiLanguage
+    if (isHindi(text)) {
+      utterance.lang = "hi-IN";
+    } else {
+      utterance.lang = langMap[aiLanguage] || "en-IN";
+    }
     utterance.rate = 0.9;
 
     const voices = window.speechSynthesis.getVoices();
@@ -2709,7 +2685,13 @@ async function handleAiRequest() {
 
       const data = await response.json();
       removeTypingIndicator();
-      addMessageToChat("ai", data.reply || data.response);
+      const reply = data.reply || data.response;
+      addMessageToChat("ai", reply);
+
+      // Auto-speak AI response
+      if (typeof speakResponse === 'function') {
+        speakResponse(reply);
+      }
     } else {
       if (gemmaStatus === "ready") {
         console.log("Routing to Local Gemma (Offline)...");
@@ -2721,7 +2703,13 @@ async function handleAiRequest() {
           const { OfflineAi } = window.Capacitor.Plugins;
           const result = await OfflineAi.generateResponse({ prompt: prompt });
           removeTypingIndicator();
-          addMessageToChat("ai", result.response);
+          const reply = result.response;
+          addMessageToChat("ai", reply);
+
+          // Auto-speak AI response
+          if (typeof speakResponse === 'function') {
+            speakResponse(reply);
+          }
         } else {
           throw new Error("OfflineAi plugin not available");
         }
@@ -2838,7 +2826,3 @@ async function saveProfileCompletion() {
   }
 }
 
-// Map Helper
-function initMap() {
-  // Existing initMap...
-}
