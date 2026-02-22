@@ -1842,6 +1842,7 @@
                         </h3>
 
                         <div id="familyMembersList" class="space-y-6">
+<<<<<<< HEAD
                             <!-- Member Profile Card - Detailed -->
                             <div
                                 class="bg-white rounded-[2.5rem] p-6 shadow-xl hover:shadow-2xl transition-all border border-gray-100 group">
@@ -1977,6 +1978,12 @@
                                         </div>
                                     </div>
                                 </div>
+=======
+                            <!-- Family members will be dynamically loaded from Firestore here -->
+                            <div class="text-center py-10 opacity-60">
+                                <i class="fas fa-user-friends text-4xl mb-3 block"></i>
+                                <p>No family members added yet.</p>
+>>>>>>> d0c92c30ba865ebb8ddf0204d0a56ed22a3c1d77
                             </div>
                         </div>
                     </div>
@@ -1987,37 +1994,9 @@
                             <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
                                 <i class="fas fa-bolt text-yellow-500"></i> Health Activity
                             </h3>
-                            <div class="space-y-4">
-                                <div class="relative pl-8 border-l-2 border-pink-100 py-2">
-                                    <div
-                                        class="absolute -left-[9px] top-4 w-4 h-4 rounded-full bg-pink-500 border-4 border-white">
-                                    </div>
-                                    <div class="text-xs font-bold text-gray-400 uppercase mb-1">2 Hours Ago</div>
-                                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-50">
-                                        <p class="text-sm font-bold text-gray-700">Brother marked "Daily Vitamins" as
-                                            taken.</p>
-                                    </div>
-                                </div>
-                                <div class="relative pl-8 border-l-2 border-pink-100 py-2">
-                                    <div
-                                        class="absolute -left-[9px] top-4 w-4 h-4 rounded-full bg-blue-500 border-4 border-white">
-                                    </div>
-                                    <div class="text-xs font-bold text-gray-400 uppercase mb-1">8 Hours Ago</div>
-                                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-50">
-                                        <p class="text-sm font-bold text-gray-700">Son completed "Weekly Checkup"
-                                            survey.</p>
-                                    </div>
-                                </div>
-                                <div class="relative pl-8 border-l-2 border-pink-100 py-2">
-                                    <div
-                                        class="absolute -left-[9px] top-4 w-4 h-4 rounded-full bg-purple-500 border-4 border-white">
-                                    </div>
-                                    <div class="text-xs font-bold text-gray-400 uppercase mb-1">Yesterday</div>
-                                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-50">
-                                        <p class="text-sm font-bold text-gray-700">New lab results uploaded for your
-                                            family.</p>
-                                    </div>
-                                </div>
+                            <div id="healthActivityTimeline" class="space-y-4">
+                                <!-- Activities will be dynamically loaded here -->
+                                <p class="text-sm text-gray-400 italic">Recent activities will appear here.</p>
                             </div>
                         </div>
 
@@ -2331,8 +2310,12 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <div class="bg-green-50/50 rounded-2xl p-5 border border-green-100">
                                     <h4 class="text-xs font-bold text-green-700 uppercase mb-4 flex items-center gap-2">
+<<<<<<< HEAD
                                         <i class="fas fa-apple-alt"></i> Recommended
                                     </h4>
+=======
+                                        <i class="fas fa-apple-alt"></i> Recommended</h4>
+>>>>>>> d0c92c30ba865ebb8ddf0204d0a56ed22a3c1d77
                                     <div id="advice-recommended"></div>
                                 </div>
                                 <div class="bg-red-50/50 rounded-2xl p-5 border border-red-100">
@@ -2342,15 +2325,23 @@
                                 </div>
                                 <div class="bg-blue-50/50 rounded-2xl p-5 border border-blue-100">
                                     <h4 class="text-xs font-bold text-blue-700 uppercase mb-4 flex items-center gap-2">
+<<<<<<< HEAD
                                         <i class="fas fa-walking"></i> Exercise
                                     </h4>
+=======
+                                        <i class="fas fa-walking"></i> Exercise</h4>
+>>>>>>> d0c92c30ba865ebb8ddf0204d0a56ed22a3c1d77
                                     <div id="advice-exercise"></div>
                                 </div>
                                 <div class="bg-indigo-50/50 rounded-2xl p-5 border border-indigo-100">
                                     <h4
                                         class="text-xs font-bold text-indigo-700 uppercase mb-4 flex items-center gap-2">
+<<<<<<< HEAD
                                         <i class="fas fa-user-md"></i> Doctor Visits
                                     </h4>
+=======
+                                        <i class="fas fa-user-md"></i> Doctor Visits</h4>
+>>>>>>> d0c92c30ba865ebb8ddf0204d0a56ed22a3c1d77
                                     <div id="advice-doctor"></div>
                                 </div>
                             </div>
