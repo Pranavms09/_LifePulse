@@ -13,7 +13,25 @@ import {
   doc,
   setDoc,
   getDoc,
+  collection,
+  addDoc,
+  deleteDoc,
+  onSnapshot,
+  query,
+  orderBy,
+  serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// Expose Firestore utilities to window for script.js
+window.db = db;
+window.doc = doc;
+window.collection = collection;
+window.addDoc = addDoc;
+window.deleteDoc = deleteDoc;
+window.onSnapshot = onSnapshot;
+window.query = query;
+window.orderBy = orderBy;
+window.serverTimestamp = serverTimestamp;
 
 window.isLoggedIn = false;
 window.isProfileComplete = false;
@@ -228,6 +246,11 @@ onAuthStateChanged(auth, async (user) => {
         const hash = window.location.hash.substring(1) || "home";
         window.showSection(hash, false);
       }
+
+      // Load family members for the authenticated user
+      if (typeof window.loadFamilyMembers === "function") {
+        window.loadFamilyMembers();
+      }
     }
 
     // Update LifePulse Profile UI (Dashboard & Sidebar)
@@ -329,6 +352,16 @@ onAuthStateChanged(auth, async (user) => {
     if (typeof window.showSection === "function") {
       const hash = window.location.hash.substring(1) || "home";
       window.showSection(hash, false);
+    }
+
+    // Clear family members list on logout
+    const familyList = document.getElementById("familyMembersList");
+    if (familyList) {
+      familyList.innerHTML = `
+        <div class="text-center py-10 opacity-60">
+            <i class="fas fa-lock text-4xl mb-3 block"></i>
+            <p>Please login to view family members.</p>
+        </div>`;
     }
   }
 });

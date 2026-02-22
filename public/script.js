@@ -1483,14 +1483,13 @@ async function fetchNearbyHospitals(lat, lng) {
                     <div class="text-xs text-gray-500 mb-1">${address}</div>
                     <div class="text-sm text-blue-600 font-medium"><i class="fas fa-route mr-1"></i>${distance} km</div>
                 </div>
-                ${
-                  phone !== "Not Available"
-                    ? `
+                ${phone !== "Not Available"
+          ? `
                 <a href="tel:${phone}" onclick="event.stopPropagation()" class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white hover:bg-green-600 shadow-md transform hover:scale-105 transition ml-2">
                     <i class="fas fa-phone"></i>
                 </a>`
-                    : ""
-                }
+          : ""
+        }
             `;
       hospitalList.appendChild(div);
     });
@@ -2394,29 +2393,49 @@ function closeAddMemberModal() {
   document.getElementById("addMemberForm").reset();
 }
 
-function saveFamilyMember() {
+async function saveFamilyMember() {
+  if (!window.isLoggedIn || !window.auth.currentUser) {
+    showNotification("Please login to add family members", "warning");
+    return;
+  }
+
+  const user = window.auth.currentUser;
+  const name = document.getElementById("memberFullNames").value;
+  const age = document.getElementById("memberAge").value;
+  const gender = document.getElementById("memberGender").value;
+  const relation = document.getElementById("memberRelation").value;
+  const bloodGroup = document.getElementById("memberBloodGroup").value;
+  const condition = document.getElementById("memberCondition").value || "None";
+
+  if (!name || !age || !relation) {
+    showNotification("Please fill in all required fields", "error");
+    return;
+  }
+
   const memberData = {
-    id: Date.now(),
-    name: document.getElementById("memberFullNames").value,
-    age: document.getElementById("memberAge").value,
-    gender: document.getElementById("memberGender").value,
-    relation: document.getElementById("memberRelation").value,
-    bloodGroup: document.getElementById("memberBloodGroup").value,
-    condition: document.getElementById("memberCondition").value || "None",
-    healthScore: 75 + Math.floor(Math.random() * 25), // Simulate a health score
+    name,
+    age: parseInt(age),
+    gender,
+    relation,
+    bloodGroup,
+    condition,
+    healthScore: 75 + Math.floor(Math.random() * 25),
+    createdAt: window.serverTimestamp(),
   };
 
-  // Save to localStorage
-  const members = JSON.parse(localStorage.getItem("familyMembers") || "[]");
-  members.push(memberData);
-  localStorage.setItem("familyMembers", JSON.stringify(members));
-
-  // Render in UI
-  renderFamilyMember(memberData);
-
-  // Cleanup
-  closeAddMemberModal();
-  showNotification(`${memberData.name} added to family!`, "success");
+  try {
+    showNotification("Saving family member...", "info");
+    const docRef = await window.addDoc(
+      window.collection(window.db, "users", user.uid, "familyMembers"),
+      memberData,
+    );
+    console.log("Member added with ID: ", docRef.id);
+    closeAddMemberModal();
+    showNotification(`${name} added to family!`, "success");
+  } catch (error) {
+    console.error("Error adding family member: ", error);
+    showNotification("Failed to save family member", "error");
+  }
 }
 
 function renderFamilyMember(member) {
@@ -2426,7 +2445,7 @@ function renderFamilyMember(member) {
   const card = document.createElement("div");
   card.className =
     "bg-white rounded-[2.5rem] p-6 shadow-xl hover:shadow-2xl transition-all border border-gray-100 group animate-card-entry";
-  card.setAttribute("data-id", member.id); // Add data-id for deletion
+  card.setAttribute("data-id", member.id);
 
   card.innerHTML = `
         <div class="flex flex-col md:flex-row gap-6">
@@ -2479,7 +2498,7 @@ function renderFamilyMember(member) {
                     </div>
                 </div>
                 <div class="flex justify-end mt-4">
-                    <button onclick="deleteFamilyMember(${member.id})" class="text-red-500 hover:text-red-700 text-sm font-medium">
+                    <button onclick="deleteFamilyMember('${member.id}')" class="text-red-500 hover:text-red-700 text-sm font-medium">
                         <i class="fas fa-trash mr-1"></i> Delete Member
                     </button>
                 </div>
@@ -2491,28 +2510,74 @@ function renderFamilyMember(member) {
 }
 
 function deleteFamilyMember(memberId) {
+  if (!window.isLoggedIn || !window.auth.currentUser) return;
+  const user = window.auth.currentUser;
+
   showConfirmModal(
     "Delete Family Member?",
     "Are you sure you want to remove this family member?",
-    () => {
-      let members = JSON.parse(localStorage.getItem("familyMembers") || "[]");
-      members = members.filter((member) => member.id !== memberId);
-      localStorage.setItem("familyMembers", JSON.stringify(members));
-
-      const memberCard = document.querySelector(
-        `#familyMembersList > div[data-id="${memberId}"]`,
-      );
-      if (memberCard) {
-        memberCard.remove();
+    async () => {
+      try {
+        await window.deleteDoc(
+          window.doc(
+            window.db,
+            "users",
+            user.uid,
+            "familyMembers",
+            memberId.toString(),
+          ),
+        );
         showNotification("Family member deleted!", "success");
+      } catch (error) {
+        console.error("Error deleting member: ", error);
+        showNotification("Failed to delete member", "error");
       }
     },
   );
 }
 
+let familyUnsubscribe = null;
+
 function loadFamilyMembers() {
-  const members = JSON.parse(localStorage.getItem("familyMembers") || "[]");
-  members.forEach((member) => renderFamilyMember(member));
+  if (!window.isLoggedIn || !window.auth.currentUser) return;
+  const user = window.auth.currentUser;
+  const list = document.getElementById("familyMembersList");
+
+  // Unsubscribe from previous listener if exists
+  if (familyUnsubscribe) familyUnsubscribe();
+
+  const q = window.query(
+    window.collection(window.db, "users", user.uid, "familyMembers"),
+    window.orderBy("createdAt", "desc"),
+  );
+
+  familyUnsubscribe = window.onSnapshot(
+    q,
+    (snapshot) => {
+      if (!list) return;
+      list.innerHTML = "";
+
+      if (snapshot.empty) {
+        list.innerHTML = `
+                <div class="text-center py-10 opacity-60">
+                    <i class="fas fa-user-friends text-4xl mb-3 block"></i>
+                    <p>No family members added yet.</p>
+                </div>`;
+        return;
+      }
+
+      snapshot.forEach((doc) => {
+        const member = { id: doc.id, ...doc.data() };
+        renderFamilyMember(member);
+      });
+    },
+    (error) => {
+      console.error("Error loading family members: ", error);
+      if (list) {
+        list.innerHTML = `<p class="text-center text-red-500 py-10">Error loading data. Please try again.</p>`;
+      }
+    },
+  );
 }
 
 async function handleLogout() {
