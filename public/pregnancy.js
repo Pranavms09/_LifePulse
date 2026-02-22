@@ -495,25 +495,176 @@ function getOrdinal(n) {
   return s[(v - 20) % 10] || s[v] || s[0];
 }
 
+/**
+ * Assembles a rich, structured context string from the user's current
+ * pregnancy stats, historical health logs, and personal profile.
+ * This is injected into every AI request so Sanjeevani can give
+ * truly personalised lifestyle and nutrition advice.
+ */
+function getPregnancyContext() {
+  // --- Pregnancy Stats from DOM ---
+  const weekEl = document.getElementById("preg-week-display");
+  const trimesterEl = document.getElementById("preg-trimester-val");
+  const dueDateEl = document.getElementById("preg-due-date-val");
+  const milestoneEl = document.getElementById("milestone-text");
+  const fetalLengthEl = document.getElementById("fetal-length");
+  const fetalWeightEl = document.getElementById("fetal-weight");
+
+  const week = weekEl ? weekEl.textContent.replace("W ", "").trim() : "unknown";
+  const trimester = trimesterEl ? trimesterEl.textContent.trim() : "unknown";
+  const dueDate = dueDateEl ? dueDateEl.textContent.trim() : "unknown";
+  const milestone = milestoneEl ? milestoneEl.textContent.trim() : "";
+  const fetalLength = fetalLengthEl ? fetalLengthEl.textContent.trim() : "";
+  const fetalWeight = fetalWeightEl ? fetalWeightEl.textContent.trim() : "";
+
+  // --- Historical Health Logs from localStorage ---
+  const logs = JSON.parse(localStorage.getItem("pregnancyLogs") || "[]");
+  let logsStr = "No health logs recorded yet.";
+  if (logs.length > 0) {
+    const recent = logs.slice(0, 5);
+    logsStr = recent
+      .map(
+        (l, i) =>
+          `  Log ${i + 1} (${l.date}): Weight=${l.weight}kg, BP=${l.bp}mmHg, Blood Sugar=${l.sugar}mg/dL, Hemoglobin=${l.hb}g/dL`,
+      )
+      .join("\n");
+  }
+
+  // --- User Profile from localStorage ---
+  let profileStr = "Profile not available.";
+  try {
+    const profile = JSON.parse(localStorage.getItem("profileData") || "{}");
+    const medical = JSON.parse(localStorage.getItem("medicalData") || "{}");
+    const parts = [];
+    if (profile.age) parts.push(`Age: ${profile.age} years`);
+    if (profile.gender) parts.push(`Gender: ${profile.gender}`);
+    if (profile.bloodGroup) parts.push(`Blood Group: ${profile.bloodGroup}`);
+    if (medical.height) parts.push(`Height: ${medical.height} cm`);
+    if (medical.weight) parts.push(`Weight: ${medical.weight} kg`);
+    if (medical.conditions)
+      parts.push(`Medical Conditions: ${medical.conditions}`);
+    if (medical.allergies) parts.push(`Known Allergies: ${medical.allergies}`);
+    if (medical.medications)
+      parts.push(`Current Medications: ${medical.medications}`);
+    if (parts.length > 0) profileStr = parts.join(", ");
+  } catch (e) {
+    // Ignore parse errors
+  }
+
+  return `=== PATIENT CONTEXT (Use this data to personalise ALL advice) ===
+Pregnancy Week: ${week}
+Trimester: ${trimester}
+Estimated Due Date: ${dueDate}
+Fetal Size: ${fetalLength} cm long, ${fetalWeight} g
+Current Milestone: ${milestone}
+
+Recent Health Log Entries (most recent first):
+${logsStr}
+
+User Profile: ${profileStr}
+=== END PATIENT CONTEXT ===`;
+}
+
+// --- File Attachment State ---
+let pregAttachedFile = null; // { name, mimeType, base64 }
+
+/**
+ * Called when the user picks a file via the attachment button.
+ * Reads the file as base64 and shows a preview badge in the chat input.
+ */
+function pregHandleFileSelect(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+
+  const allowedTypes = [
+    "application/pdf",
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+  ];
+  if (!allowedTypes.includes(file.type)) {
+    if (window.showNotification)
+      window.showNotification("Please attach a PDF or image file.", "error");
+    input.value = "";
+    return;
+  }
+
+  const maxMB = 10;
+  if (file.size > maxMB * 1024 * 1024) {
+    if (window.showNotification)
+      window.showNotification(
+        `File too large. Max size is ${maxMB}MB.`,
+        "error",
+      );
+    input.value = "";
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const base64 = e.target.result.split(",")[1]; // strip the data:..;base64, prefix
+    pregAttachedFile = { name: file.name, mimeType: file.type, base64 };
+
+    // Show preview badge
+    const preview = document.getElementById("preg-file-preview");
+    const nameEl = document.getElementById("preg-file-name");
+    if (preview) preview.classList.remove("hidden");
+    if (nameEl) nameEl.textContent = file.name;
+
+    // Highlight attachment button
+    const btn = document.getElementById("preg-attach-btn");
+    if (btn) btn.classList.add("bg-pink-100", "text-pink-600");
+  };
+  reader.readAsDataURL(file);
+}
+
+/**
+ * Clears the attached file and hides the preview badge.
+ */
+function pregClearAttachment() {
+  pregAttachedFile = null;
+  const fileInput = document.getElementById("preg-file-input");
+  if (fileInput) fileInput.value = "";
+  const preview = document.getElementById("preg-file-preview");
+  if (preview) preview.classList.add("hidden");
+  const btn = document.getElementById("preg-attach-btn");
+  if (btn) btn.classList.remove("bg-pink-100", "text-pink-600");
+}
+
 // AI Pregnancy Companion Expert Function
 async function PregnancyAI(query) {
-  if (!query || query.trim() === "") return;
+  const hasFile = !!pregAttachedFile;
+  const hasText = query && query.trim() !== "";
+
+  // Need at least a text message OR an attached file
+  if (!hasText && !hasFile) return;
+
+  // Default query when only a file is attached and no text typed
+  const effectiveQuery = hasText
+    ? query
+    : "I have attached a medical report. Please analyse it carefully and give me personalised recommendations based on this report and my current pregnancy status.";
 
   const inputArea = document.getElementById("preg-ai-input");
   const responseArea = document.getElementById("preg-ai-results");
 
-  // Add user message to chat
+  // Add user message to chat (with optional file badge)
   const userMsg = document.createElement("div");
   userMsg.className = "flex justify-end gap-3 mb-4";
+  const fileBadge = hasFile
+    ? `<div class="flex items-center gap-1 bg-white/20 rounded-lg px-2 py-1 mb-2 text-[10px]"><i class="fas fa-file-medical mr-1"></i>${pregAttachedFile.name}</div>`
+    : "";
   userMsg.innerHTML = `
         <div class="bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-2xl rounded-tr-none p-4 text-xs shadow-md max-w-[80%]">
-            ${query}
+            ${fileBadge}
+            ${effectiveQuery}
         </div>
     `;
   responseArea.appendChild(userMsg);
 
-  // Clear input
+  // Clear input and capture the file before clearing the attachment
   if (inputArea) inputArea.value = "";
+  const fileToSend = pregAttachedFile ? { ...pregAttachedFile } : null;
+  pregClearAttachment();
 
   // Typing indicator
   const typingIndicator = document.createElement("div");
@@ -529,13 +680,18 @@ async function PregnancyAI(query) {
   responseArea.appendChild(typingIndicator);
   responseArea.scrollTo({ top: responseArea.scrollHeight, behavior: "smooth" });
 
+  // Build personalised context from tracker + profile
+  const userContext = getPregnancyContext();
+
   try {
     const response = await fetch("/api/pregnancy-chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        message: query,
+        message: effectiveQuery,
         language: window.aiLanguage || "en",
+        userContext: userContext,
+        attachedFile: fileToSend, // { name, mimeType, base64 } or null
         systemPrompt:
           "You are Sanjeevani, a specialized AI Pregnancy Expert for LifePulse. Provide medically accurate, empathetic, and culturally relevant advice for pregnant women in rural India. Always advise consulting a doctor for any pain or serious symptoms.",
       }),
@@ -603,3 +759,22 @@ window.updatePregnancyStats = updatePregnancyStats;
 window.savePregnancyLog = savePregnancyLog;
 window.togglePregnancyAI = togglePregnancyAI;
 window.PregnancyAI = PregnancyAI;
+window.getPregnancyContext = getPregnancyContext;
+window.pregHandleFileSelect = pregHandleFileSelect;
+window.pregClearAttachment = pregClearAttachment;
+
+/**
+ * Shortcut: asks the AI for a fully personalised weekly health plan
+ * using the current tracker data. Triggered by the "AI Recommendations"
+ * button in the pregnancy section.
+ */
+window.requestPregnancyRecommendations = function () {
+  // Open the AI panel first
+  togglePregnancyAI(true);
+  const week =
+    (document.getElementById("preg-week-display") || {}).textContent ||
+    "current";
+  const cleanWeek = week.replace("W ", "").trim();
+  const query = `Based on my current pregnancy status and health logs, please give me a detailed and personalised plan for Week ${cleanWeek} covering: (1) Nutrition and what foods I should eat or avoid, (2) Safe exercises and physical activity, (3) Any health warnings based on my recent vitals, and (4) What to discuss at my next doctor's visit.`;
+  PregnancyAI(query);
+};
