@@ -2458,7 +2458,6 @@ async function saveFamilyMember() {
     relation,
     bloodGroup,
     condition,
-    healthScore: 75 + Math.floor(Math.random() * 25),
     createdAt: window.serverTimestamp(),
   };
 
@@ -2502,40 +2501,10 @@ function renderFamilyMember(member) {
                     <div>
                         <h4 class="text-2xl font-black text-gray-800">${member.name} (${member.relation})</h4>
                         <p class="text-gray-500 font-medium">${member.age} Years • ${member.bloodGroup} Positive</p>
-                    </div>
-                    <div class="flex items-center justify-center gap-2">
-                        <div class="text-right hidden md:block">
-                            <div class="text-xs font-bold text-gray-400 uppercase tracking-widest leading-none">Health Score</div>
-                            <div class="text-xl font-black text-green-600 leading-tight">${member.healthScore}/100</div>
-                        </div>
-                        <div class="health-ring-container">
-                            <svg class="health-ring-svg w-full h-full" viewBox="0 0 36 36">
-                                <circle class="health-ring-circle" stroke="#f3f4f6" cx="18" cy="18" r="16" />
-                                <circle class="health-ring-circle" stroke="#10b981" stroke-dasharray="${member.healthScore}, 100" cx="18" cy="18" r="16" />
-                            </svg>
-                            <div class="absolute inset-0 flex items-center justify-center text-[10px] font-bold">${member.healthScore}%</div>
-                        </div>
+                        <p class="text-sm text-gray-600 mt-1"><strong>Condition:</strong> ${member.condition}</p>
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100">
-                        <div class="text-[10px] font-bold text-gray-400 uppercase">Status</div>
-                        <div class="font-bold text-gray-800">Healthy</div>
-                    </div>
-                    <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100">
-                        <div class="text-[10px] font-bold text-gray-400 uppercase">Condition</div>
-                        <div class="font-bold text-gray-800 truncate">${member.condition}</div>
-                    </div>
-                    <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100">
-                        <div class="text-[10px] font-bold text-gray-400 uppercase">Activity</div>
-                        <div class="font-bold text-gray-800">Active</div>
-                    </div>
-                    <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100">
-                        <div class="text-[10px] font-bold text-pink-600 uppercase">Consult</div>
-                        <div class="font-bold text-pink-600">Available</div>
-                    </div>
-                </div>
                 <div class="flex justify-end mt-4">
                     <button onclick="deleteFamilyMember('${member.id}')" class="text-red-500 hover:text-red-700 text-sm font-medium">
                         <i class="fas fa-trash mr-1"></i> Delete Member
