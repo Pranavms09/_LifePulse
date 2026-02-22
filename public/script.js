@@ -2095,9 +2095,14 @@ function saveEmergencyContacts() {
 function loadEmergencyContacts() {
   let contacts = JSON.parse(localStorage.getItem("emergencyContacts") || "[]");
 
-  // Clean up "Brother Raj" if he exists (default data removal)
+  // Clean up default data if they exist
   const initialCount = contacts.length;
-  contacts = contacts.filter((c) => c.name !== "Brother Raj");
+  contacts = contacts.filter(
+    (c) =>
+      c.name !== "Brother Raj" &&
+      c.name.toLowerCase() !== "anil" &&
+      c.name.toLowerCase() !== "anil mane",
+  );
   if (contacts.length !== initialCount) {
     localStorage.setItem("emergencyContacts", JSON.stringify(contacts));
   }

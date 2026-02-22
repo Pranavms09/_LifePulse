@@ -305,11 +305,14 @@ onAuthStateChanged(auth, async (user) => {
       if (viewPhone) viewPhone.textContent = userData.mobile;
       if (editPhone) editPhone.value = userData.mobile;
     }
-    if (userData.height && userData.weight) {
-      if (viewHeightWeight)
-        viewHeightWeight.textContent = `${userData.height} cm • ${userData.weight} kg`;
-      if (editHeight) editHeight.value = userData.height;
-      if (editWeight) editWeight.value = userData.weight;
+    if (userData.height || userData.weight) {
+      if (viewHeightWeight) {
+        const h = userData.height || "--";
+        const w = userData.weight || "--";
+        viewHeightWeight.textContent = `${h} cm • ${w} kg`;
+      }
+      if (editHeight && userData.height) editHeight.value = userData.height;
+      if (editWeight && userData.weight) editWeight.value = userData.weight;
     }
 
     // --- Multi-Location Profile Image Sync ---
