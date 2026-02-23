@@ -45,7 +45,8 @@ function updatePregnancyVisibility() {
   }
 
   // Handle Main Card Visibility
-  const isCurrentlyPregnant = (cpGender?.value === "Female" && cpPregnant?.value === "Yes") ||
+  const isCurrentlyPregnant =
+    (cpGender?.value === "Female" && cpPregnant?.value === "Yes") ||
     (editGender?.value === "Female" && editPregnant?.value === "Yes");
 
   if (pregnancyCard) {
@@ -60,7 +61,7 @@ function updatePregnancyVisibility() {
 // Add listeners when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
   const ids = ["cp-gender", "editGender", "cp-is-pregnant", "editIsPregnant"];
-  ids.forEach(id => {
+  ids.forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.addEventListener("change", updatePregnancyVisibility);
   });
@@ -1535,13 +1536,14 @@ async function fetchNearbyHospitals(lat, lng) {
                     <div class="text-xs text-gray-500 mb-1">${address}</div>
                     <div class="text-sm text-blue-600 font-medium"><i class="fas fa-route mr-1"></i>${distance} km</div>
                 </div>
-                ${phone !== "Not Available"
-          ? `
+                ${
+                  phone !== "Not Available"
+                    ? `
                 <a href="tel:${phone}" onclick="event.stopPropagation()" class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white hover:bg-green-600 shadow-md transform hover:scale-105 transition ml-2">
                     <i class="fas fa-phone"></i>
                 </a>`
-          : ""
-        }
+                    : ""
+                }
             `;
       hospitalList.appendChild(div);
     });
@@ -1946,7 +1948,15 @@ async function savePersonalInfo() {
   cancelEdit("personal");
 
   // Save to localStorage (Fallback)
-  const profileData = { name, age, gender, isPregnant: isPregnant === "Yes", bloodGroup, phone, email };
+  const profileData = {
+    name,
+    age,
+    gender,
+    isPregnant: isPregnant === "Yes",
+    bloodGroup,
+    phone,
+    email,
+  };
   localStorage.setItem("profileData", JSON.stringify(profileData));
 
   showNotification("Profile updated successfully!", "success");
@@ -2224,9 +2234,13 @@ function loadProfileData() {
     // Set pregnancy field visibility and value if available
     if (data.gender === "Female") {
       if (document.getElementById("cp-pregnancy-group"))
-        document.getElementById("cp-pregnancy-group").classList.remove("hidden");
+        document
+          .getElementById("cp-pregnancy-group")
+          .classList.remove("hidden");
       if (document.getElementById("editPregnancyGroup"))
-        document.getElementById("editPregnancyGroup").classList.remove("hidden");
+        document
+          .getElementById("editPregnancyGroup")
+          .classList.remove("hidden");
 
       const pregnantVal = data.isPregnant ? "Yes" : "No";
       if (document.getElementById("cp-is-pregnant"))
@@ -2943,7 +2957,6 @@ if (sendBtn) {
 // Profile Completion
 async function saveProfileCompletion() {
   const name = document.getElementById("cp-name").value;
-  const age = document.getElementById("cp-age").value;
   const gender = document.getElementById("cp-gender").value;
   const bloodGroup = document.getElementById("cp-blood-group").value;
   const mobile = document.getElementById("cp-mobile").value;
@@ -2953,21 +2966,8 @@ async function saveProfileCompletion() {
   const submitBtn = document.getElementById("cp-submit-btn");
 
   // Validation
-  if (
-    !name ||
-    !age ||
-    !gender ||
-    !bloodGroup ||
-    !mobile ||
-    !height ||
-    !weight
-  ) {
+  if (!name || !gender || !bloodGroup || !mobile || !height || !weight) {
     showNotification("Please fill in all fields", "error");
-    return;
-  }
-
-  if (age < 1 || age > 120) {
-    showNotification("Please enter a valid age (1-120)", "error");
     return;
   }
 
@@ -2997,11 +2997,11 @@ async function saveProfileCompletion() {
       submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
     }
 
-    const isPregnant = document.getElementById("cp-is-pregnant").value;
+    const isPregnantEl = document.getElementById("cp-is-pregnant");
+    const isPregnant = isPregnantEl ? isPregnantEl.value : "No";
 
     const profileData = {
       displayName: name,
-      age: parseInt(age),
       gender: gender,
       isPregnant: isPregnant === "Yes",
       bloodGroup: bloodGroup,
