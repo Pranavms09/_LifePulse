@@ -1,4 +1,4 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const Groq = require("groq-sdk");
 
 module.exports = async function handler(req, res) {
   // Enable CORS
@@ -35,20 +35,11 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: "Message is required" });
     }
 
-    if (!process.env.GEMINI_API_KEY) {
+    if (!process.env.GROQ_API_KEY) {
       return res.status(500).json({ error: "API Key missing" });
     }
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
-      generationConfig: {
-        temperature: 0.7,
-        topP: 0.95,
-        topK: 64,
-        maxOutputTokens: 8192,
-      },
-    });
+    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
     // ---- Build the system prompt ----
     // The expert persona is always included. The patient context (pregnancy week,
@@ -77,33 +68,45 @@ PERSONA: You are empathetic, medically accurate, and culturally relevant to preg
 
     if (attachedFile && attachedFile.base64 && attachedFile.mimeType) {
       // ---- MULTIMODAL PATH: Report file + Text ----
-      // Gemini receives both the system/context text AND the inline file data
-      // so it can read the report values and cross-reference with the patient's
-      // pregnancy status to give targeted, medically relevant recommendations.
       const fileInstruction =
         attachedFile.mimeType === "application/pdf"
           ? "The user has attached a medical report PDF. Carefully read ALL values in the report. Identify any abnormal results, especially those related to pregnancy (haemoglobin, blood pressure, blood glucose, thyroid, vitamins). Cross-reference with the patient context above and provide specific, actionable recommendations."
           : "The user has attached a medical report image. Carefully read ALL visible values in this image. Identify any abnormal or unusual results related to pregnancy. Cross-reference with the patient context above and provide specific, actionable recommendations.";
 
-      result = await model.generateContent([
-        {
-          text: `${fullSystemPrompt}\n\n${fileInstruction}\n\nUser Question: ${message}\nResponse Language: ${language}`,
-        },
-        {
-          inlineData: {
-            mimeType: attachedFile.mimeType,
-            data: attachedFile.base64,
+      result = await groq.chat.completions.create({
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `${fullSystemPrompt}\n\n${fileInstruction}\n\nUser Question: ${message}\nResponse Language: ${language}`,
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:${attachedFile.mimeType};base64,${attachedFile.base64}`,
+                },
+              },
+            ],
           },
-        },
-      ]);
+        ],
+        model: "llama-3.2-90b-vision-preview",
+        temperature: 0.7,
+        max_tokens: 8192,
+      });
     } else {
       // ---- TEXT-ONLY PATH ----
       const prompt = `${fullSystemPrompt}\n\nUser Question: ${message}\nResponse Language: ${language}`;
-      result = await model.generateContent(prompt);
+      result = await groq.chat.completions.create({
+        messages: [{ role: "user", content: prompt }],
+        model: "llama-3.3-70b-versatile",
+        temperature: 0.7,
+        max_tokens: 8192,
+      });
     }
 
-    const response = await result.response;
-    const text = response.text();
+    const text = result.choices[0]?.message?.content || "";
 
     return res.status(200).json({ reply: text });
   } catch (error) {
