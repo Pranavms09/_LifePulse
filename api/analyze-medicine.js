@@ -1,4 +1,4 @@
-const Groq = require("groq-sdk");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 module.exports = async function handler(req, res) {
   // Enable CORS
@@ -31,14 +31,17 @@ module.exports = async function handler(req, res) {
     }
 
     // Validate API Key
-    if (!process.env.GROQ_API_KEY) {
-      console.error("GROQ_API_KEY is not set");
+    if (!process.env.GEMINI_API_KEY) {
+      console.error("GEMINI_API_KEY is not set");
       return res
         .status(500)
         .json({ error: "Server misconfiguration: API Key missing" });
     }
 
-    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+    // Initialize Gemini API
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    // Using gemini-2.5-flash as requested
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `
             Analyze this medicine image (strip, bottle, or packet).
@@ -68,27 +71,18 @@ module.exports = async function handler(req, res) {
     const mimeType = match ? match[1] : "image/jpeg";
     const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
 
-    const result = await groq.chat.completions.create({
-      messages: [
-        {
-          role: "user",
-          content: [
-            { type: "text", text: prompt },
-            {
-              type: "image_url",
-              image_url: {
-                url: `data:${mimeType};base64,${base64Data}`,
-              },
-            },
-          ],
+    const imageParts = [
+      {
+        inlineData: {
+          data: base64Data,
+          mimeType: mimeType,
         },
-      ],
-      model: "llama-3.2-11b-vision-instruct",
-      temperature: 0.7,
-      max_tokens: 8192,
-    });
+      },
+    ];
 
-    const text = result.choices[0]?.message?.content || "";
+    const result = await model.generateContent([prompt, ...imageParts]);
+    const response = await result.response;
+    const text = response.text();
 
     // Extract JSON from the response text (handling potential markdown formatting)
     let jsonStr = text;
