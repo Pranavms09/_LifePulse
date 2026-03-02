@@ -83,7 +83,7 @@ module.exports = async function handler(req, res) {
           ],
         },
       ],
-      model: "llama-3.2-90b-vision-preview",
+      model: "llama-3.2-11b-vision-instruct",
       temperature: 0.7,
       max_tokens: 8192,
     });
