@@ -25,10 +25,10 @@ Strict Rules:
 • ALWAYS end every response with: "Would you like to tell me more about your symptoms?"
 
 Formatting Rules:
-• **Use bullet points (•) for all key information.**
-• **Keep lines short and scannable.**
+• Use bullet points (•) for all key information.
+• Keep lines short and scannable.
 • Start with a friendly, brief greeting.
-• Use bold section headers (e.g., **Home Care Advice**).
+• Use clear section headers (e.g., Home Care Advice). Do NOT use asterisks (**) or bolding.
 • Do not use long paragraphs.
 
 Tone: Friendly, Reassuring, Professional, and Concise.`;
@@ -129,8 +129,9 @@ module.exports = async function handler(req, res) {
       }
     }
     const text = result.choices[0]?.message?.content || "";
+    const cleanText = text.replace(/\*\*/g, ""); // Remove bolding for TTS
 
-    return res.status(200).json({ reply: text });
+    return res.status(200).json({ reply: cleanText });
   } catch (error) {
     console.error("Error in Vercel chat function:", error);
 

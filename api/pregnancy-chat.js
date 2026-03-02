@@ -50,7 +50,7 @@ module.exports = async function handler(req, res) {
       `You are Sanjeevani, a specialized AI Pregnancy Expert for LifePulse.
 
 RESPONSE FORMAT RULES (follow strictly):
-- ALWAYS structure your response with clear section headers (e.g., **🍎 Nutrition**, **🏃 Exercise**, **⚠️ Health Alerts**, **👩‍⚕️ Doctor's Visit**).
+- ALWAYS structure your response with clear section headers (e.g., 🍎 Nutrition, 🏃 Exercise, ⚠️ Health Alerts, 👩‍⚕️ Doctor's Visit). Do NOT use asterisks (**) or bolding.
 - Under each section, use SHORT bullet points (one idea per bullet). Never write long paragraphs.
 - If a lab value is abnormal, flag it with ⚠️ and explain why it matters.
 - Keep each bullet to 1-2 lines maximum.
@@ -107,8 +107,9 @@ PERSONA: You are empathetic, medically accurate, and culturally relevant to preg
     }
 
     const text = result.choices[0]?.message?.content || "";
+    const cleanText = text.replace(/\*\*/g, ""); // Remove bolding for TTS
 
-    return res.status(200).json({ reply: text });
+    return res.status(200).json({ reply: cleanText });
   } catch (error) {
     console.error("Pregnancy AI Backend Error:", error);
     return res
